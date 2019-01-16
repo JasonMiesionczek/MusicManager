@@ -1,0 +1,10 @@
+[package]
+name = "data"
+version = "0.1.0"
+authors = ["jason"]
+edition = "2018"
+
+[dependencies]
+diesel = { version = "1.3.3", features = ["mysql", "chrono"] }
+dotenv = "0.13.0"
+chrono = "0.4.6"
