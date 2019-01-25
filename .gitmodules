@@ -1,0 +1,3 @@
+[submodule "thirdparty/barrel"]
+	path = thirdparty/barrel
+	url = git@github.com:JasonMiesionczek/barrel.git

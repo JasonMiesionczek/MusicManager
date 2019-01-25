@@ -7,7 +7,6 @@ edition = "2018"
 [dependencies]
 openssl = "0.10.16"
 data = {path = "../data"}
-diesel = { version = "1.3.3", features = ["mysql", "chrono"] }
 clippy = {version = "0.0.144", optional = true}
 clap = "2.25.1"
 log = "0.4.6"

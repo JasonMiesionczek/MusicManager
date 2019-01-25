@@ -12,6 +12,7 @@ extern crate url;
 
 pub mod downloader;
 pub mod services;
+pub mod entities;
 
 #[cfg(test)]
 mod tests {

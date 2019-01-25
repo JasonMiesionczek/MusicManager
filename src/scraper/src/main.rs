@@ -16,9 +16,8 @@ pub enum Mode {
 
 #[derive(Debug)]
 pub struct Config {
-    mode: Mode,
-    artist: Option<String>,
-    album_id: Option<String>,
+    script: String,
+    url: String,
 }
 
 impl Config {
@@ -50,11 +49,20 @@ impl Config {
             },
         };
 
-        Ok(Config {
-            mode,
-            artist,
-            album_id,
-        })
+        let script = match mode {
+            Mode::Album => include_str!("scripts/album.js").to_string(),
+            Mode::Song => include_str!("scripts/songs.js").to_string(),
+        };
+
+        let url = match mode {
+            Mode::Album => format!("https://music.youtube.com/search?q={}", artist.unwrap()),
+            Mode::Song => format!(
+                "https://music.youtube.com/playlist?list={}",
+                album_id.unwrap()
+            ),
+        };
+
+        Ok(Config { script, url })
     }
 }
 
@@ -79,6 +87,7 @@ pub struct Song {
     id: String,
     name: String,
     num: u32,
+    image: String,
 }
 
 fn main() {
@@ -86,103 +95,12 @@ fn main() {
         eprintln!("Problem parsing arguments: {}", err);
         std::process::exit(1);
     });
-    let album_script = r#"
-	var bandName = "";
-        function getAlbums() {
-            var data = [];
-            bandName = document.querySelector('[role="heading"]').text.runs[0].text;
-
-            var showAllAlbumsLink = document.querySelector('[title="See all"]');
-            if (showAllAlbumsLink == undefined) {
-                var albums = document.querySelector('ytmusic-carousel-shelf-renderer').data.contents;
-                for (var i = 0; i < albums.length; i++) {
-                    var id = albums[i].musicTwoRowItemRenderer.doubleTapNavigationEndpoint.watchPlaylistEndpoint.playlistId;
-                    var albumName = albums[i].musicTwoRowItemRenderer.title.runs[0].text;
-                    data.push({id: id, name: albumName, artist: bandName});
-                }
-                external.invoke(JSON.stringify({cmd: 'albums', data: data}));
-            } else {
-		clickAlbumLink();
-            }
-        }
-
-	function clickAlbumLink() {
-		document.querySelector('[title="See all"]').click();
-		setTimeout(function () {
-		    var data = [];
-		    var albums = document.querySelector('ytmusic-section-list-renderer').data.contents[0].musicShelfRenderer.contents;
-		    for (var i = 0; i < albums.length; i++) {
-			    var id = albums[i].musicResponsiveListItemRenderer.menu.menuRenderer.items[3].menuServiceItemRenderer.serviceEndpoint.queueAddEndpoint.queueTarget.playlistId;
-			    var albumName = albums[i].musicResponsiveListItemRenderer.flexColumns[0].musicResponsiveListItemFlexColumnRenderer.text.runs[0].text;
-                var imageUrl = document.querySelectorAll('ytmusic-responsive-list-item-renderer')[i].querySelector('img').src;
-                var year = document.querySelectorAll('ytmusic-responsive-list-item-renderer')[i].querySelector('.secondary-flex-columns').querySelector('yt-formatted-string').text.runs[2].text;
-			    data.push(
-                    {
-                        id: id,
-                        name: albumName,
-                        artist: bandName,
-                        image: imageUrl,
-                        year: year
-                    }
-                );
-		    }
-		    external.invoke(JSON.stringify({cmd: 'albums', data: data}));
-		}, 5000);
-	}
-
-        function start() {
-            document.querySelector('a[href*="channel"]').click();
-            setTimeout(getAlbums, 5000);
-        }
-
-        start();
-    "#;
-
-    let song_script = r#"
-        function getSongData() {
-            var data = [];
-            var songs = document.querySelector('ytmusic-data-bound-album-release-tracks-shelf-renderer').data.shelfMold.musicShelfRenderer.contents;
-            for (var i = 0; i < songs.length; i++) {
-                var songId = songs[i].musicListItemRenderer.overlay.musicItemThumbnailOverlayRenderer.content.musicPlayButtonRenderer.playNavigationEndpoint.watchEndpoint.videoId;
-                var albumId = songs[i].musicListItemRenderer.overlay.musicItemThumbnailOverlayRenderer.content.musicPlayButtonRenderer.playNavigationEndpoint.watchEndpoint.playlistId;
-                var name = songs[i].musicListItemRenderer.overlay.musicItemThumbnailOverlayRenderer.content.musicPlayButtonRenderer.accessibilityPlayData.accessibilityData.label;
-                name = name.substring(5);
-                if (typeof songId == 'undefined' || songId == 'undefined') {
-                    continue;
-                }
-                data.push({id: songId, name: name, num: i+1});
-            }
-            external.invoke(JSON.stringify({cmd: 'songs', data: data}));
-        }
-
-        function start() {
-            setTimeout(getSongData, 5000);
-        }
-
-        start();
-    "#;
-
-    let script = match config.mode {
-        Mode::Album => album_script,
-        Mode::Song => song_script,
-    };
-
-    let url = match config.mode {
-        Mode::Album => format!(
-            "https://music.youtube.com/search?q={}",
-            config.artist.unwrap()
-        ),
-        Mode::Song => format!(
-            "https://music.youtube.com/playlist?list={}",
-            config.album_id.unwrap()
-        ),
-    };
 
     let web_view = web_view::builder()
         .title("test")
-        .content(Content::Url(url))
-        .size(800, 600)
-        .debug(false)
+        .content(Content::Url(config.url))
+        .size(1224, 768)
+        .debug(true)
         .user_data(0)
         .invoke_handler(|webview, arg| {
             match serde_json::from_str(arg).unwrap() {
@@ -195,7 +113,7 @@ fn main() {
                 Cmd::Songs { data } => {
                     if let Ok(json_str) = serde_json::to_string(&data) {
                         println!("{}", json_str);
-                        webview.terminate();
+                        //webview.terminate();
                     }
                 }
             }
@@ -205,10 +123,11 @@ fn main() {
         .unwrap();
 
     let handle = web_view.handle();
+    let script = config.script;
     thread::spawn(move || {
         thread::sleep(Duration::from_secs(5));
         handle
-            .dispatch(move |webview| webview.eval(script))
+            .dispatch(move |webview| webview.eval(script.as_str()))
             .unwrap();
     });
 

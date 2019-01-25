@@ -1,9 +1,4 @@
-#![allow(proc_macro_derive_resolution_fallback)]
-use super::schema::*;
-use diesel::{Insertable, Queryable};
-
-#[derive(Queryable, Debug, Insertable)]
-#[table_name = "tasks"]
+#[derive(Debug)]
 pub struct Task {
     pub id: i32,
     pub name: Option<String>,
@@ -11,16 +6,14 @@ pub struct Task {
     pub task_type: i32,
 }
 
-#[derive(Queryable, Debug, Insertable, Clone)]
-#[table_name = "artists"]
+#[derive(Debug, Clone)]
 pub struct Artist {
     pub id: i32,
-    pub name: Option<String>,
-    pub external_id: Option<String>,
+    pub name: String,
+    pub external_id: String,
 }
 
-#[derive(Queryable, Debug, Insertable)]
-#[table_name = "albums"]
+#[derive(Debug)]
 pub struct Album {
     pub id: i32,
     pub name: Option<String>,
@@ -30,8 +23,7 @@ pub struct Album {
     pub external_id: Option<String>,
 }
 
-#[derive(Queryable, Debug, Insertable)]
-#[table_name = "songs"]
+#[derive(Debug)]
 pub struct Song {
     pub id: i32,
     pub name: Option<String>,

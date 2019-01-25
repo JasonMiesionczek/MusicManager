@@ -5,6 +5,8 @@ authors = ["jason"]
 edition = "2018"
 
 [dependencies]
-diesel = { version = "1.3.3", features = ["mysql", "chrono"] }
 dotenv = "0.13.0"
 chrono = "0.4.6"
+barrel = { path = "../../thirdparty/barrel", features = ["mysql"]}
+mysql = "*"
+uuid = "0.7.1"
