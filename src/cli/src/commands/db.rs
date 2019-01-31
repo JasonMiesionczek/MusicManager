@@ -1,8 +1,21 @@
 use data::migrations::get_migrations;
+use data::repos::{artist::ArtistRepository, Repository};
 use dotenv::var;
 use mysql as my;
 
 const HISTORY_TABLE_NAME: &str = "__migration_history";
+
+macro_rules! map(
+    { $($key:expr => $value:expr),+ } => {
+        {
+            let mut m = ::std::collections::HashMap::new();
+            $(
+                m.insert($key, $value);
+            )+
+            m
+        }
+     };
+);
 
 pub fn run_migrations() {
     prepare_database();

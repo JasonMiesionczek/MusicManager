@@ -9,14 +9,20 @@ pub struct ArtistRepository {}
 impl Repository for ArtistRepository {
     type Item = Artist;
 
+    fn select_query(&self) -> String {
+        String::from("SELECT id, name, external_id FROM artists")
+    }
+
+    fn insert_query(&self) -> String {
+        String::from("INSERT INTO artists (name, external_id) VALUES (:name, :external_id)")
+    }
+
     fn create<'a>(
         &self,
         item: &'a mut Self::Item,
         pool: my::Pool,
     ) -> Result<&'a mut Self::Item, &'static str> {
-        let mut stmt = pool
-            .prepare("INSERT INTO artists (name, external_id) VALUES (:name, :external_id)")
-            .unwrap();
+        let mut stmt = pool.prepare(self.insert_query()).unwrap();
         let exid = uuid::Uuid::new_v4().to_string();
         stmt.execute(params! {
             "name" => &item.name,
@@ -24,39 +30,9 @@ impl Repository for ArtistRepository {
         })
         .unwrap();
         item.external_id = exid;
-        Ok(item)
-    }
-
-    fn find_by_id(&self, id: u32, pool: my::Pool) -> Option<Self::Item> {
-        let query = format!(
-            "SELECT id, name, external_id FROM artists WHERE id = {}",
-            id
-        );
-        let results = self.query_and_map(pool, query, |row| {
-            let (id, name, external_id) = my::from_row(row);
-            Artist {
-                id,
-                name,
-                external_id,
-            }
-        });
-        if let Some(value) = results.get(0) {
-            Some(value.to_owned())
-        } else {
-            None
+        if item.id == 0 {
+            item.id = self.get_last_id(pool);
         }
-    }
-
-    fn get_all(&self, pool: my::Pool) -> Vec<Self::Item> {
-        let query = "SELECT id, name, external_id FROM artists";
-        let results = self.query_and_map(pool, String::from(query), |row| {
-            let (id, name, external_id) = my::from_row(row);
-            Artist {
-                id,
-                name,
-                external_id,
-            }
-        });
-        results
+        Ok(item)
     }
 }

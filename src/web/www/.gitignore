@@ -1,7 +1,5 @@
-.vscode/
-target/
-Cargo.lock
-.env
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
 # dependencies
 /node_modules
 /.pnp
@@ -12,7 +10,6 @@ Cargo.lock
 
 # production
 /build
-public/music/
 
 # misc
 .DS_Store

@@ -1,11 +1,11 @@
-use crate::entities::*;
+use data::models::*;
 use std::process::Command;
 
-pub struct MusicService {}
+pub struct YoutubeService {}
 
-impl MusicService {
-    pub fn new() -> MusicService {
-        MusicService {}
+impl YoutubeService {
+    pub fn new() -> YoutubeService {
+        YoutubeService {}
     }
 
     pub fn get_album_data(&self, artist_name: &str) -> Vec<AlbumMeta> {
@@ -44,12 +44,16 @@ impl MusicService {
     }
 
     pub fn download_song(&self, song_id: &str, filename: &str) -> bool {
+        dotenv::dotenv().ok();
+        let music_dir =
+            dotenv::var("MUSIC_DOWNLOAD_DIR").expect("download directory not specified");
+        let output_file = format!("{}/{}", music_dir, filename);
         let output = Command::new("youtube-dl")
             .arg("--extract-audio")
             .arg("--audio-format")
             .arg("mp3")
             .arg("--output")
-            .arg(filename)
+            .arg(output_file)
             .arg(format!("https://music.youtube.com/watch?v={}", song_id))
             .status()
             .expect("failed to execute");

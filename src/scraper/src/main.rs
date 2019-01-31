@@ -113,7 +113,7 @@ fn main() {
                 Cmd::Songs { data } => {
                     if let Ok(json_str) = serde_json::to_string(&data) {
                         println!("{}", json_str);
-                        //webview.terminate();
+                        webview.terminate();
                     }
                 }
             }

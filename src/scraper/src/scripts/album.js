@@ -3,16 +3,30 @@ function getAlbums() {
   var data = [];
   bandName = document.querySelector('[role="heading"]').text.runs[0].text;
 
-  var showAllAlbumsLink = document.querySelector('[title="See all"]');
-  if (showAllAlbumsLink == undefined) {
+  var showAllAlbumsLink = document.querySelectorAll('[title="See all"]');
+  if (showAllAlbumsLink.length == 1) {
     var albums = document.querySelector("ytmusic-carousel-shelf-renderer").data
       .contents;
+    var albumElements = document
+      .querySelector("ytmusic-carousel")
+      .querySelectorAll("img");
     for (var i = 0; i < albums.length; i++) {
       var id =
         albums[i].musicTwoRowItemRenderer.doubleTapNavigationEndpoint
           .watchPlaylistEndpoint.playlistId;
       var albumName = albums[i].musicTwoRowItemRenderer.title.runs[0].text;
-      data.push({ id: id, name: albumName, artist: bandName });
+      var year = albums[i].musicTwoRowItemRenderer.subtitle.runs[2].text;
+      var image = albumElements[i].src;
+      if (image.startsWith("data")) {
+        image = "";
+      }
+      data.push({
+        id: id,
+        name: albumName,
+        artist: bandName,
+        year: year,
+        image: image
+      });
     }
     external.invoke(JSON.stringify({ cmd: "albums", data: data }));
   } else {

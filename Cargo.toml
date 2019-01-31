@@ -6,4 +6,5 @@ members = [
     "src/cli",
     "src/core",
     "src/task-runner",
+    "src/web",
 ]

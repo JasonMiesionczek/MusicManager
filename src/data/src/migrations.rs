@@ -15,7 +15,7 @@ pub fn get_migrations() -> Vec<String> {
                 t.add_column("image", varchar(2048));
                 t.add_column("year", integer());
                 t.add_column("artist_id", integer());
-                t.add_column("external_id", varchar(36));
+                t.add_column("external_id", varchar(255));
                 let artist_fk = ForeignKey {
                     child_column: "artist_id",
                     parent_table: "artists",
@@ -31,7 +31,7 @@ pub fn get_migrations() -> Vec<String> {
                 t.add_column("duration", integer());
                 t.add_column("track", integer());
                 t.add_column("album_id", integer());
-                t.add_column("external_id", varchar(36));
+                t.add_column("external_id", varchar(255));
                 let album_fk = ForeignKey {
                     child_column: "album_id",
                     parent_table: "albums",
@@ -46,6 +46,28 @@ pub fn get_migrations() -> Vec<String> {
                 t.add_column("name", varchar(255));
             });
         }),
+        migration(|m| {
+            m.change_table("tasks", |t| {
+                t.add_column("status", varchar(255));
+                t.add_column("task_type", varchar(255));
+                t.add_column("external_id", varchar(36));
+            });
+        }),
+        migration(|m| {
+            m.change_table("tasks", |t| {
+                t.add_column("task_data", text());
+            });
+        }),
+        migration(|m| {
+            m.change_table("tasks", |t| {
+                t.drop_column("name");
+            });
+        }),
+        migration(|m| {
+            m.change_table("songs", |t| {
+                t.add_column("filename", varchar(255));
+            });
+        })
     ];
 
     migrations

@@ -1,8 +1,20 @@
-use core::services::music::MusicService;
+use core::services::youtube::YoutubeService;
+use data::{
+    models::*,
+    repos::{task::TaskRepository, Repository},
+};
+use dotenv;
+use mysql as my;
 use prettytable::{cell, format, row, Table};
 
+fn get_pool() -> my::Pool {
+    let url = dotenv::var("DATABASE_URL").expect("could not find DATABASE_URL");
+    let pool = my::Pool::new(url).unwrap();
+    pool
+}
+
 pub fn search_command(artist_name: &str) {
-    let ms = MusicService::new();
+    let ms = YoutubeService::new();
     let albums = ms.get_album_data(artist_name);
     let mut table = Table::new();
     let format = format::FormatBuilder::new()
@@ -20,7 +32,12 @@ pub fn search_command(artist_name: &str) {
     for album in &albums {
         table.add_row(row![album.name, album.year]);
     }
-    //table.add_row(row!["Value 1", "Value 2"]);
-    //table.add_row(row!["Value three", "Value four"]);
+
     table.printstd();
+}
+
+pub fn queue_download(artist_name: &str) {
+    let task_repo = TaskRepository {};
+    let mut task = Task::new(TaskType::GetAlbumData(artist_name.to_string()));
+    task_repo.create(&mut task, get_pool()).unwrap();
 }

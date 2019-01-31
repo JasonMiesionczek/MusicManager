@@ -1,5 +1,5 @@
 use clap::{App, Arg, SubCommand};
-use cli::commands::{db::run_migrations, music::search_command};
+use cli::commands::{db::run_migrations, music::queue_download, music::search_command};
 
 use dotenv::dotenv;
 
@@ -11,7 +11,7 @@ fn main() {
             SubCommand::with_name("music") // The name we call argument with
                 .about("Commands for managing music") // The message displayed in "myapp -h"
                 // or "myapp help"
-                .subcommand(
+                .subcommands(vec![
                     SubCommand::with_name("search")
                         .about("Search for an artist")
                         .arg(
@@ -20,7 +20,15 @@ fn main() {
                                 .index(1)
                                 .required(true),
                         ),
-                ),
+                    SubCommand::with_name("queue")
+                        .about("Queue an artist download")
+                        .arg(
+                            Arg::with_name("artist_name")
+                                .help("artist to search for")
+                                .index(1)
+                                .required(true),
+                        ),
+                ]),
             SubCommand::with_name("db")
                 .about("Commands for working with the database")
                 .subcommands(vec![
@@ -33,6 +41,9 @@ fn main() {
         ("music", Some(music_matches)) => match music_matches.subcommand() {
             ("search", Some(search_matches)) => {
                 search_command(search_matches.value_of("artist_name").unwrap())
+            }
+            ("queue", Some(queue_matches)) => {
+                queue_download(queue_matches.value_of("artist_name").unwrap())
             }
             ("", None) => println!("No subcommand was used"),
             _ => println!("invalid subcommand"),
