@@ -57,8 +57,9 @@ fn create_song(meta: &SongMeta, album: &Album, pool: &my::Pool) -> Song {
     let song_repo = SongRepository {};
     let album_id = album.id.to_string();
     let name = meta.name.replace("'", "''");
+    let external_id = &meta.id;
     let songs = song_repo.find_by(
-        map! {"name" => name.as_str(), "album_id"=> album_id.as_str()},
+        map! {"name" => name.as_str(), "album_id"=> album_id.as_str(), "external_id" => external_id.as_str()},
         pool,
     );
     if songs.len() == 0 {
