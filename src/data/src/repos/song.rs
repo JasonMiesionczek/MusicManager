@@ -24,7 +24,7 @@ impl Repository for SongRepository {
     fn create<'a>(
         &self,
         item: &'a mut Self::Item,
-        pool: my::Pool,
+        pool: &my::Pool,
     ) -> Result<&'a mut Self::Item, &'static str> {
         let mut stmt = pool.prepare(self.insert_query()).unwrap();
         let exid = uuid::Uuid::new_v4().to_string();

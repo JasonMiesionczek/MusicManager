@@ -15,7 +15,7 @@ pub trait Repository {
     fn create<'a>(
         &self,
         item: &'a mut Self::Item,
-        pool: my::Pool,
+        pool: &my::Pool,
     ) -> Result<&'a mut Self::Item, &'static str>;
 
     fn update(&self, table: &str, values: HashMap<&str, &str>, id: u32, pool: my::Pool) {
@@ -28,7 +28,7 @@ pub trait Repository {
         pool.prep_exec(query, ()).unwrap();
     }
 
-    fn get_last_id(&self, pool: my::Pool) -> u32 {
+    fn get_last_id(&self, pool: &my::Pool) -> u32 {
         let query = "SELECT LAST_INSERT_ID()";
         let mut result = pool.prep_exec(query, ()).unwrap();
         let row = result.nth(0).unwrap();
