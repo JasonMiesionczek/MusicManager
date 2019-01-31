@@ -9,10 +9,11 @@ impl YoutubeService {
     }
 
     pub fn get_album_data(&self, artist_name: &str) -> Vec<AlbumMeta> {
+        let scraper_path = dotenv::var("SCRAPER_PATH").expect("scraper path not specified");
         let output = Command::new("xvfb-run")
             .arg("--auto-servernum")
             .arg("--server-num=1")
-            .arg("/home/jason/Projects/music-manager/target/release/scraper")
+            .arg(scraper_path)
             .arg("album")
             .arg(artist_name)
             .output()
@@ -27,10 +28,11 @@ impl YoutubeService {
     }
 
     pub fn get_track_list(&self, album_id: &str) -> Vec<SongMeta> {
+        let scraper_path = dotenv::var("SCRAPER_PATH").expect("scraper path not specified");
         let output = Command::new("xvfb-run")
             .arg("--auto-servernum")
             .arg("--server-num=1")
-            .arg("/home/jason/Projects/music-manager/target/release/scraper")
+            .arg(scraper_path)
             .arg("song")
             .arg(album_id)
             .output()
