@@ -33,8 +33,9 @@ fn create_album(meta: &AlbumMeta, artist: Artist, pool: &my::Pool) -> Album {
     let album_repo = AlbumRepository {};
     let artist_id = artist.id.to_string();
     let external_id = &meta.id;
+    let name = meta.name.replace("'", "''");
     let albums = album_repo.find_by(
-        map! {"name" => meta.name.as_str(), "artist_id" => artist_id.as_str(), "external_id" => external_id.as_str()},
+        map! {"name" => name.as_str(), "artist_id" => artist_id.as_str(), "external_id" => external_id.as_str()},
         pool,
     );
     if albums.len() == 0 {
