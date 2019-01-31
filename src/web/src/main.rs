@@ -1,18 +1,13 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 
-use ::data::models::*;
-use ::data::repos::{artist::ArtistRepository, Repository};
 use core::services::library::*;
 use dotenv;
 use mysql;
 use rocket::State;
 use rocket::*;
 use rocket_contrib::json::Json;
-use rocket_contrib::serve::{Options, StaticFiles};
+use rocket_contrib::serve::StaticFiles;
 use serde_derive::{Deserialize, Serialize};
-use std::sync::Mutex;
-
-type ArtistRepositoryMutex = Mutex<ArtistRepository>;
 
 #[derive(Serialize, Deserialize)]
 struct Library {

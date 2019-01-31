@@ -38,6 +38,7 @@ pub fn search_command(artist_name: &str) {
 
 pub fn queue_download(artist_name: &str) {
     let task_repo = TaskRepository {};
+    let pool = get_pool();
     let mut task = Task::new(TaskType::GetAlbumData(artist_name.to_string()));
-    task_repo.create(&mut task, get_pool()).unwrap();
+    task_repo.create(&mut task, &pool).unwrap();
 }
