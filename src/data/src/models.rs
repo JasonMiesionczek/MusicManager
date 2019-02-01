@@ -46,6 +46,7 @@ impl Display for TaskStatus {
 #[derive(Deserialize, Debug, Serialize, Clone)]
 pub enum TaskType {
     GetAlbumData(String),
+    GetAlbumImage(AlbumMeta),
     GetSongData(AlbumMeta),
     DownloadSong(SongMeta),
 }
@@ -55,6 +56,7 @@ impl Display for TaskType {
         //write!(f, "({}, {})", self.x, self.y)
         match &self {
             TaskType::GetAlbumData(_) => write!(f, "get_album_data"),
+            TaskType::GetAlbumImage(_) => write!(f, "get_album_image"),
             TaskType::GetSongData(_) => write!(f, "get_song_data"),
             TaskType::DownloadSong(_) => write!(f, "download_song"),
         }
@@ -98,6 +100,10 @@ impl From<Row> for Task {
             "get_song_data" => {
                 let album: AlbumMeta = serde_json::from_str(task_data.as_str()).unwrap();
                 TaskType::GetSongData(album)
+            }
+            "get_album_image" => {
+                let album: AlbumMeta = serde_json::from_str(task_data.as_str()).unwrap();
+                TaskType::GetAlbumImage(album)
             }
             "download_song" => {
                 let song: SongMeta = serde_json::from_str(task_data.as_str()).unwrap();

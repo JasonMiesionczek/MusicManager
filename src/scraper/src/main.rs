@@ -12,6 +12,7 @@ extern crate serde_json;
 pub enum Mode {
     Album,
     Song,
+    Image,
 }
 
 #[derive(Debug)]
@@ -28,6 +29,7 @@ impl Config {
             Some(m) => match m.as_ref() {
                 "album" => Mode::Album,
                 "song" => Mode::Song,
+                "image" => Mode::Image,
                 _ => return Err("unknown mode"),
             },
             None => return Err("no mode specified"),
@@ -38,12 +40,12 @@ impl Config {
                 Some(a) => Some(a),
                 None => return Err("no artist specified"),
             },
-            Mode::Song => None,
+            Mode::Song | Mode::Image => None,
         };
 
         let album_id = match mode {
             Mode::Album => None,
-            Mode::Song => match args.next() {
+            Mode::Song | Mode::Image => match args.next() {
                 Some(s) => Some(s),
                 None => return Err("no album id specified"),
             },
@@ -52,11 +54,12 @@ impl Config {
         let script = match mode {
             Mode::Album => include_str!("scripts/album.js").to_string(),
             Mode::Song => include_str!("scripts/songs.js").to_string(),
+            Mode::Image => include_str!("scripts/image.js").to_string(),
         };
 
         let url = match mode {
             Mode::Album => format!("https://music.youtube.com/search?q={}", artist.unwrap()),
-            Mode::Song => format!(
+            Mode::Song | Mode::Image => format!(
                 "https://music.youtube.com/playlist?list={}",
                 album_id.unwrap()
             ),
@@ -71,6 +74,7 @@ impl Config {
 pub enum Cmd {
     Albums { data: Vec<Album> },
     Songs { data: Vec<Song> },
+    Image { data: String },
 }
 
 #[derive(Deserialize, Debug, Serialize)]
@@ -104,6 +108,10 @@ fn main() {
         .user_data(0)
         .invoke_handler(|webview, arg| {
             match serde_json::from_str(arg).unwrap() {
+                Cmd::Image { data } => {
+                    println!("{}", data);
+                    webview.terminate();
+                }
                 Cmd::Albums { data } => {
                     if let Ok(json_str) = serde_json::to_string(&data) {
                         println!("{}", json_str);

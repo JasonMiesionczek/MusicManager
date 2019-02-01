@@ -11,13 +11,7 @@ use mysql as my;
 use std::collections::HashMap;
 use std::{thread, time};
 
-fn get_pool() -> my::Pool {
-    let url = dotenv::var("DATABASE_URL").expect("could not find DATABASE_URL");
-    let pool = my::Pool::new(url).unwrap();
-    pool
-}
-
-fn create_artist(artist_name: &str, pool: &my::Pool) -> Artist {
+fn create_artist(artist_name: &str, pool: &my::Pool) -> Option<Artist> {
     let artist_repo = ArtistRepository {};
     let artists = artist_repo.find_by(map! {"name" => artist_name}, pool);
     if artists.len() == 0 {
@@ -25,11 +19,11 @@ fn create_artist(artist_name: &str, pool: &my::Pool) -> Artist {
         artist_repo.create(&mut artist, pool).unwrap();
         create_artist(artist_name, pool)
     } else {
-        artists.get(0).cloned().unwrap()
+        artists.get(0).cloned()
     }
 }
 
-fn create_album(meta: &AlbumMeta, artist: Artist, pool: &my::Pool) -> Album {
+fn create_album(meta: &AlbumMeta, artist: Artist, pool: &my::Pool) -> Option<Album> {
     let album_repo = AlbumRepository {};
     let artist_id = artist.id.to_string();
     let external_id = &meta.id;
@@ -47,13 +41,13 @@ fn create_album(meta: &AlbumMeta, artist: Artist, pool: &my::Pool) -> Album {
             meta.id.clone(),
         );
         album_repo.create(&mut album, pool).unwrap();
-        album
+        Some(album)
     } else {
-        albums.get(0).cloned().unwrap()
+        albums.get(0).cloned()
     }
 }
 
-fn create_song(meta: &SongMeta, album: &Album, pool: &my::Pool) -> Song {
+fn create_song(meta: &SongMeta, album: &Album, pool: &my::Pool) -> Option<Song> {
     let song_repo = SongRepository {};
     let album_id = album.id.to_string();
     let name = meta.name.replace("'", "''");
@@ -65,18 +59,18 @@ fn create_song(meta: &SongMeta, album: &Album, pool: &my::Pool) -> Song {
     if songs.len() == 0 {
         let mut song = Song::new(meta.name.clone(), meta.num, album.id, meta.id.clone());
         song_repo.create(&mut song, pool).unwrap();
-        song
+        Some(song)
     } else {
-        songs.get(0).cloned().unwrap()
+        songs.get(0).cloned()
     }
 }
 
-fn update_task(task: &Task, status: TaskStatus) {
+fn update_task(task: &Task, status: TaskStatus, pool: &my::Pool) {
     let task_repo = TaskRepository {};
     let mut values = HashMap::new();
     let status_string = status.to_string();
     values.insert("status", status_string.as_str());
-    task_repo.update("tasks", values, task.id, get_pool());
+    task_repo.update("tasks", values, task.id, &pool);
 }
 
 fn do_task(task: Task, pool: &my::Pool) {
@@ -92,35 +86,53 @@ fn do_task(task: Task, pool: &my::Pool) {
                 2) For each album we check if the album for that artist exists,
                     if not we create it
             */
-            update_task(&task, TaskStatus::InProgress);
+            update_task(&task, TaskStatus::InProgress, &pool);
             let albums = youtube_service.get_album_data(&artist_name);
             for album in albums {
-                let artist = create_artist(&album.artist, &pool);
-                println!("Artist: {:?}", artist);
-                let _album = create_album(&album, artist, &pool);
-                let mut task = Task::new(TaskType::GetSongData(album));
-                task_repo.create(&mut task, &pool).unwrap();
+                if let Some(artist) = create_artist(&album.artist, &pool) {
+                    let _album = create_album(&album, artist, &pool);
+                    let album_clone = album.clone();
+                    let mut task = Task::new(TaskType::GetSongData(album));
+                    task_repo.create(&mut task, &pool).unwrap();
+                    let mut image_task = Task::new(TaskType::GetAlbumImage(album_clone));
+                    task_repo.create(&mut image_task, &pool).unwrap();
+                }
             }
-            update_task(&task, TaskStatus::Complete);
+            update_task(&task, TaskStatus::Complete, &pool);
+        }
+        TaskType::GetAlbumImage(ref album_meta) => {
+            update_task(&task, TaskStatus::InProgress, &pool);
+            let meta = album_meta.clone();
+            let id = meta.id;
+            if let Some(_album) = album_repo.find_by_external_id(id, &pool) {
+                let image_url = youtube_service.get_album_image_url(album_meta.id.as_str());
+                println!("IMAGE URL: {}", image_url);
+                youtube_service.download_image(album_meta.clone().id.as_str(), image_url.as_str());
+            }
+            update_task(&task, TaskStatus::Complete, &pool);
         }
         TaskType::GetSongData(ref album_meta) => {
-            update_task(&task, TaskStatus::InProgress);
+            update_task(&task, TaskStatus::InProgress, &pool);
             let meta = album_meta.clone();
-            let album = album_repo.find_by_external_id(meta.id, &pool);
-            let songs = youtube_service.get_track_list(album_meta.id.clone().as_str());
-            for song in songs {
-                let _song = create_song(&song, &album, &pool);
-                let mut task = Task::new(TaskType::DownloadSong(song));
-                task_repo.create(&mut task, &pool).unwrap();
+            if let Some(album) = album_repo.find_by_external_id(meta.id, &pool) {
+                let songs = youtube_service.get_track_list(album_meta.id.clone().as_str());
+                for song in songs {
+                    let _song = create_song(&song, &album, &pool);
+                    let mut task = Task::new(TaskType::DownloadSong(song));
+                    task_repo.create(&mut task, &pool).unwrap();
+                }
+                update_task(&task, TaskStatus::Complete, &pool);
+            } else {
+                update_task(&task, TaskStatus::Complete, &pool);
             }
-            update_task(&task, TaskStatus::Complete);
         }
         TaskType::DownloadSong(ref song_meta) => {
-            update_task(&task, TaskStatus::InProgress);
+            update_task(&task, TaskStatus::InProgress, &pool);
             let meta = song_meta.clone();
-            let song = song_repo.find_by_external_id(meta.id, &pool);
-            youtube_service.download_song(song.external_id.as_str(), song.filename.as_str());
-            update_task(&task, TaskStatus::Complete);
+            if let Some(song) = song_repo.find_by_external_id(meta.id, &pool) {
+                youtube_service.download_song(song.external_id.as_str(), song.filename.as_str());
+                update_task(&task, TaskStatus::Complete, &pool);
+            }
         }
     }
 }
@@ -129,13 +141,9 @@ fn main() {
     dotenv().ok();
     let task_repo = TaskRepository {};
     let one_minute = time::Duration::from_secs(60);
-    let pool = get_pool();
+    let pool = data::get_pool();
     loop {
-        let tasks = task_repo
-            .get_all(&pool)
-            .into_iter()
-            .filter(|t| t.status == TaskStatus::Pending)
-            .collect::<Vec<_>>();
+        let tasks = task_repo.find_by(core::map! {"status" => "pending"}, &pool);
         println!("Found {} tasks", tasks.len());
         for task in tasks {
             match task.status {

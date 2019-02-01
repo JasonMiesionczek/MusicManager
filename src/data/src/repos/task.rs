@@ -27,7 +27,7 @@ impl Repository for TaskRepository {
 
         let task_data: String = match &item.task_type {
             TaskType::GetAlbumData(artist_name) => artist_name.to_string(),
-            TaskType::GetSongData(album_meta) => serde_json::to_string(&album_meta).unwrap(),
+            TaskType::GetSongData(album_meta) | TaskType::GetAlbumImage(album_meta) => serde_json::to_string(&album_meta).unwrap(),
             TaskType::DownloadSong(song_meta) => serde_json::to_string(&song_meta).unwrap(),
         };
 

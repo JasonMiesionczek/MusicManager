@@ -27,7 +27,7 @@ function getSongData() {
 }
 
 function start() {
-  setTimeout(getSongData, 5000);
+  setTimeout(getSongData, 10000);
 }
 
 start();

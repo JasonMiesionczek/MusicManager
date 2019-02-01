@@ -18,7 +18,7 @@ pub trait Repository {
         pool: &my::Pool,
     ) -> Result<&'a mut Self::Item, &'static str>;
 
-    fn update(&self, table: &str, values: HashMap<&str, &str>, id: u32, pool: my::Pool) {
+    fn update(&self, table: &str, values: HashMap<&str, &str>, id: u32, pool: &my::Pool) {
         let params = values
             .iter()
             .map(|(k, v)| format!("{} = '{}'", k, v))
@@ -53,11 +53,11 @@ pub trait Repository {
         results
     }
 
-    fn find_by_external_id(&self, external_id: String, pool: &my::Pool) -> Self::Item {
+    fn find_by_external_id(&self, external_id: String, pool: &my::Pool) -> Option<Self::Item> {
         let mut predicate = HashMap::new();
         predicate.insert("external_id", external_id.as_str());
         let results = self.find_by(predicate, pool);
-        results.get(0).cloned().unwrap()
+        results.get(0).cloned()
     }
 
     fn get_all(&self, pool: &my::Pool) -> Vec<Self::Item> {

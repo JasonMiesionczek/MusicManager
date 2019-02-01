@@ -68,12 +68,12 @@ function clickAlbumLink() {
       });
     }
     external.invoke(JSON.stringify({ cmd: "albums", data: data }));
-  }, 5000);
+  }, 10000);
 }
 
 function start() {
   document.querySelector('a[href*="channel"]').click();
-  setTimeout(getAlbums, 5000);
+  setTimeout(getAlbums, 10000);
 }
 
 start();
