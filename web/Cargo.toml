@@ -1,0 +1,17 @@
+[package]
+name = "web"
+version = "0.1.0"
+authors = ["Jason Miesionczek <atmospherian@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+rocket = "0.4.0"
+rocket_contrib = "0.4.0"
+rocket_cors = "0.4.0"
+data = {path = "../libraries/data"}
+core = {path = "../libraries/core"}
+serde = "1.0"
+serde_json = "1.0"
+serde_derive = "1.0"
+dotenv = "0.13.0"
+mysql = "15.0.0"

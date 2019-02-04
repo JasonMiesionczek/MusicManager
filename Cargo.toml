@@ -1,10 +1,10 @@
 [workspace]
 
 members = [
-    "src/scraper",
-    "src/data",
-    "src/cli",
-    "src/core",
-    "src/task-runner",
-    "src/web",
+    "tools/scraper",
+    "libraries/data",
+    "tools/cli",
+    "libraries/core",
+    "tools/task-runner",
+    "web",
 ]
