@@ -2,7 +2,7 @@ use crate::models::*;
 use crate::repos::Repository;
 use mysql as my;
 use mysql::params;
-use uuid;
+use uuid::Uuid;
 
 pub struct ArtistRepository {}
 
@@ -29,7 +29,7 @@ impl Repository for ArtistRepository {
         pool: &my::Pool,
     ) -> Result<&'a mut Self::Item, String> {
         let mut stmt = pool.prepare(self.insert_query()).unwrap();
-        let exid = uuid::Uuid::new_v4().to_string();
+        let exid = Uuid::new_v4().to_string();
         let result = stmt.execute(params! {
             "name" => &item.name,
             "external_id" => exid.clone(),

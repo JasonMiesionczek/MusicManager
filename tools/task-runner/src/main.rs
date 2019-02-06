@@ -23,7 +23,8 @@ fn main() {
                 _ => {}
             }
         }
-        info!("Sleeping one minute");
-        thread::sleep(Duration::from_secs(60));
+        let wait_time = 30;
+        info!("Sleeping {} seconds", wait_time);
+        thread::sleep(Duration::from_secs(wait_time));
     }
 }

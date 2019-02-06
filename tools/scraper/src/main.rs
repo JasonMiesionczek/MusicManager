@@ -143,7 +143,7 @@ fn main() {
     let handle = web_view.handle();
     let script = config.script;
     thread::spawn(move || {
-        thread::sleep(Duration::from_secs(5));
+        thread::sleep(Duration::from_secs(10));
         handle
             .dispatch(move |webview| webview.eval(script.as_str()))
             .unwrap();

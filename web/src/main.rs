@@ -4,7 +4,7 @@ use ::data::{
     models::*,
     repos::{Repository, TaskRepository},
 };
-use core::services::{LibraryArtist, LibraryService};
+use core::services::{LibraryAlbum, LibraryArtist, LibraryService};
 use dotenv;
 use mysql;
 use rocket::State;
@@ -17,13 +17,42 @@ use serde_derive::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize)]
 struct Library {
     artists: Vec<LibraryArtist>,
+    albums: Vec<LibraryAlbum>,
 }
 
-#[get("/library", format = "json", rank = 5)]
-fn get(repo: State<LibraryService>) -> Option<Json<Library>> {
+#[get("/library/<level>", format = "json", rank = 5)]
+fn get(level: String, repo: State<LibraryService>) -> Option<Json<Library>> {
     let pool = get_pool();
     let artists = repo.get_all_music(&pool);
-    Some(Json(Library { artists: artists }))
+    match &level[..] {
+        "artists" => Some(Json(Library {
+            artists: artists,
+            albums: vec![],
+        })),
+        "albums" => {
+            let mut albums = Vec::new();
+            for artist in artists {
+                for album in artist.albums {
+                    albums.push(album);
+                }
+            }
+            Some(Json(Library {
+                artists: vec![],
+                albums: albums,
+            }))
+        }
+        _ => Some(Json(Library {
+            artists: vec![],
+            albums: vec![],
+        })),
+    }
+}
+
+#[get("/library/albums/<artist_id>", format = "json", rank = 1)]
+fn albums(artist_id: String, service: State<LibraryService>) -> Option<Json<Vec<LibraryAlbum>>> {
+    let pool = get_pool();
+    let albums = service.get_artist_albums(artist_id.as_str(), &pool);
+    Some(Json(albums))
 }
 
 #[get("/tasks", format = "json")]
@@ -47,7 +76,7 @@ fn cors_options_all() -> Cors {
 fn rckt() -> rocket::Rocket {
     rocket::ignite()
         .mount("/", StaticFiles::from("www/build"))
-        .mount("/api", routes![get, tasks])
+        .mount("/api", routes![get, tasks, albums])
         .attach(cors_options_all())
         .manage(LibraryService::new())
         .manage(TaskRepository::new())

@@ -16,6 +16,7 @@ pub struct LibraryAlbum {
     pub name: String,
     pub year: u32,
     pub external_id: String,
+    pub artist: String,
     pub songs: Vec<LibrarySong>,
 }
 
@@ -34,6 +35,24 @@ impl LibraryService {
         LibraryService {}
     }
 
+    pub fn get_artist_albums(&self, artist_id: &str, pool: &mysql::Pool) -> Vec<LibraryAlbum> {
+        let album_repo = AlbumRepository::new();
+        let mut result = Vec::new();
+        let albums = album_repo.find_by(crate::map! {"artist_id" => artist_id }, &pool);
+        for album in albums {
+            let library_album = LibraryAlbum {
+                id: album.id,
+                name: album.name,
+                year: album.year,
+                external_id: album.external_id,
+                artist: String::from(""),
+                songs: Vec::new(),
+            };
+            result.push(library_album);
+        }
+        result
+    }
+
     pub fn get_all_music(&self, pool: &mysql::Pool) -> Vec<LibraryArtist> {
         let mut result: Vec<LibraryArtist> = Vec::new();
         let artist_repo = ArtistRepository::new();
@@ -41,14 +60,17 @@ impl LibraryService {
         let song_repo = SongRepository::new();
 
         for artist in artist_repo.get_all(pool) {
+            let artist_local = artist.clone();
             let mut library_artist = LibraryArtist {
-                id: artist.id,
-                name: artist.name,
-                external_id: artist.external_id,
+                id: artist_local.id,
+                name: artist_local.name,
+                external_id: artist_local.external_id,
                 albums: Vec::new(),
             };
 
+            let artist_local = artist.clone();
             let artist_id = artist.id.to_string();
+            let artist_name = artist_local.name;
 
             for album in album_repo.find_by(map! { "artist_id" => artist_id.as_str() }, pool) {
                 let mut library_album = LibraryAlbum {
@@ -56,6 +78,7 @@ impl LibraryService {
                     name: album.name,
                     year: album.year,
                     external_id: album.external_id,
+                    artist: artist_name.clone(),
                     songs: Vec::new(),
                 };
 
