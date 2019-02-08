@@ -37,11 +37,7 @@ class SongView extends Component {
 
   componentDidMount() {
     axios
-      .get(
-        `http://localhost:8000/api/library/songs/${
-          this.props.match.params.album_id
-        }`
-      )
+      .get(`/api/library/songs/${this.props.match.params.album_id}`)
       .then(response =>
         this.setState({
           artist: response.data.artist,
@@ -89,26 +85,20 @@ class AlbumView extends Component {
   }
 
   addAlbumToQueue = album => {
-    axios
-      .get(`http://localhost:8000/api/library/songs/${album.id}`)
-      .then(response => {
-        let artist = response.data.artist;
-        let album = response.data.album;
-        let songs = response.data.songs;
-        songs.forEach(song => {
-          this.props.queueAlbumHandler(song, album, artist);
-        });
-        toast.success(`${album.name} added to queue`);
+    axios.get(`/api/library/songs/${album.id}`).then(response => {
+      let artist = response.data.artist;
+      let album = response.data.album;
+      let songs = response.data.songs;
+      songs.forEach(song => {
+        this.props.queueAlbumHandler(song, album, artist);
       });
+      toast.success(`${album.name} added to queue`);
+    });
   };
 
   componentDidMount() {
     axios
-      .get(
-        `http://localhost:8000/api/library/albums/${
-          this.props.match.params.artist_id
-        }`
-      )
+      .get(`/api/library/albums/${this.props.match.params.artist_id}`)
       .then(response =>
         this.setState({
           albums: response.data.albums,
@@ -148,7 +138,7 @@ class ArtistView extends Component {
 
   componentDidMount() {
     axios
-      .get("http://localhost:8000/api/library/artists")
+      .get("/api/library/artists")
       .then(response =>
         this.setState({ isLoaded: true, artists: response.data.artists })
       );

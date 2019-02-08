@@ -97,12 +97,10 @@ class AudioPlayer extends Component {
     let songUrl = "";
     let albumUrl = null;
     if (this.props.song) {
-      songUrl = `http://localhost:8000/music/${this.props.song.filename}`;
+      songUrl = `/music/${this.props.song.filename}`;
     }
     if (this.props.album) {
-      albumUrl = `http://localhost:8000/images/${
-        this.props.album.external_id
-      }.jpg`;
+      albumUrl = `/images/${this.props.album.external_id}.jpg`;
     }
     let albumName = this.props.album ? this.props.album.name : "";
     return (
