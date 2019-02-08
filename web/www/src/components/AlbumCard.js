@@ -56,7 +56,7 @@ class AlbumCard extends React.Component {
               height: 200 + "px",
               backgroundSize: "cover",
               backgroundPosition: "center",
-              backgroundImage: `url(http://localhost:8000/images/${
+              backgroundImage: `url(/images/${
                 this.props.album.external_id
               }.jpg)`
             }}
