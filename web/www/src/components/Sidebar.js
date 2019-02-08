@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import * as $ from "jquery";
 import "bootstrap/dist/js/bootstrap";
+import AudioPlayer from "./AudioPlayer";
 import { BrowserRouter, Route, Link } from "react-router-dom";
 
 class Sidebar extends Component {
@@ -36,12 +37,13 @@ class Sidebar extends Component {
 
         <hr className="sidebar-divider my-0" />
 
-        <li className="nav-item active">
-          <a className="nav-link" href="index.html">
-            <i className="fas fa-fw fa-tachometer-alt" />
-            <span>Now Playing</span>
-          </a>
-        </li>
+        <AudioPlayer
+          song={this.props.currentSong}
+          album={this.props.album}
+          artist={this.props.artist}
+          nextSongHandler={this.props.nextSongHandler.bind(this)}
+          prevSongHandler={this.props.prevSongHandler.bind(this)}
+        />
 
         <hr className="sidebar-divider" />
 
