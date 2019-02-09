@@ -71,9 +71,14 @@ function clickAlbumLink() {
   }, 10000);
 }
 
+function abort() {
+  external.invoke(JSON.stringify({ cmd: "abort" }));
+}
+
 function start() {
   document.querySelector('a[href*="channel"]').click();
   setTimeout(getAlbums, 10000);
+  setTimeout(abort, 60000);
 }
 
 start();

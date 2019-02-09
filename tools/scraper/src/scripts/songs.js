@@ -21,13 +21,24 @@ function getSongData() {
     if (typeof songId == "undefined" || songId == "undefined") {
       continue;
     }
-    data.push({ id: songId, name: name, num: i + 1, image: albumImage });
+    data.push({
+      id: songId,
+      name: name,
+      num: i + 1,
+      image: albumImage,
+      album_id: "%ALBUM_ID%"
+    });
   }
   external.invoke(JSON.stringify({ cmd: "songs", data: data }));
 }
 
+function abort() {
+  external.invoke(JSON.stringify({ cmd: "abort" }));
+}
+
 function start() {
   setTimeout(getSongData, 10000);
+  settimeout(abort, 60000);
 }
 
 start();

@@ -1,5 +1,7 @@
-use crate::map;
-use data::{models::*, repos::{AlbumRepository, ArtistRepository, Repository, SongRepository}};
+use data::{
+    models::*,
+    repos::{AlbumRepository, ArtistRepository, Repository, SongRepository},
+};
 use serde_derive::{Deserialize, Serialize};
 
 #[derive(Deserialize, Debug, Serialize, Clone)]
@@ -74,18 +76,18 @@ impl LibraryService {
         let song_repo = SongRepository::new();
         let songs = song_repo.find_by(crate::map! {"album_id" => album_id}, &pool);
         songs
-            // .into_iter()
-            // .map(|a| LibrarySong::from(a))
-            // .collect::<Vec<LibrarySong>>()
+        // .into_iter()
+        // .map(|a| LibrarySong::from(a))
+        // .collect::<Vec<LibrarySong>>()
     }
 
     pub fn get_artist_albums(&self, artist_id: &str, pool: &mysql::Pool) -> Vec<Album> {
         let album_repo = AlbumRepository::new();
         let albums = album_repo.find_by(crate::map! {"artist_id" => artist_id }, &pool);
         albums
-            // .into_iter()
-            // .map(|a| LibraryAlbum::from(a))
-            // .collect::<Vec<LibraryAlbum>>()
+        // .into_iter()
+        // .map(|a| LibraryAlbum::from(a))
+        // .collect::<Vec<LibraryAlbum>>()
     }
 
     pub fn get_artists(&self, pool: &mysql::Pool) -> Vec<Artist> {

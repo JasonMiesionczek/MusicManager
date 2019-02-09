@@ -6,5 +6,5 @@ members = [
     "tools/cli",
     "libraries/core",
     "tools/task-runner",
-    "web",
+    "api",
 ]

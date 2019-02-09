@@ -4,9 +4,8 @@ use ::data::{
     models::*,
     repos::{AlbumRepository, ArtistRepository, Repository, TaskRepository},
 };
-use core::services::{LibraryAlbum, LibraryArtist, LibraryService, LibrarySong};
+use core::services::LibraryService;
 use dotenv;
-use mysql;
 use rocket::State;
 use rocket::*;
 use rocket_contrib::json::Json;

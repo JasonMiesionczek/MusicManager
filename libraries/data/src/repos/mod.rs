@@ -47,6 +47,10 @@ pub trait Repository {
         results.get(0).cloned()
     }
 
+    fn find_one_by(&self, predicate: HashMap<&str, &str>, pool: &my::Pool) -> Option<Self::Item> {
+        self.find_by(predicate, &pool).get(0).cloned()
+    }
+
     fn find_by(&self, predicate: HashMap<&str, &str>, pool: &my::Pool) -> Vec<Self::Item> {
         let params = predicate
             .iter()

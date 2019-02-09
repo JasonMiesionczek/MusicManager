@@ -17,6 +17,7 @@ pub struct SongMeta {
     pub id: String,
     pub name: String,
     pub num: u32,
+    pub album_id: String,
 }
 
 #[derive(Deserialize)]

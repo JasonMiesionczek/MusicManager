@@ -50,6 +50,11 @@ impl YoutubeService {
         let json = String::from_utf8_lossy(&output.stdout)
             .trim()
             .replace("failed to create drawable", "");
+
+        if json.contains("ABORT") {
+            return vec![];
+        }
+
         let albums: Vec<AlbumMeta> = serde_json::from_str(json.as_str()).unwrap();
         albums
     }
@@ -66,6 +71,11 @@ impl YoutubeService {
         let json = String::from_utf8_lossy(&output.stdout)
             .trim()
             .replace("failed to create drawable", "");
+
+        if json.contains("ABORT") {
+            return vec![];
+        }
+
         let songs: Vec<SongMeta> = serde_json::from_str(json.as_str()).unwrap();
         songs
     }
@@ -81,9 +91,14 @@ impl YoutubeService {
             .arg("--output")
             .arg(output_file)
             .arg(format!("https://music.youtube.com/watch?v={}", song_id))
-            .status()
+            .output()
             .expect("failed to execute");
-        output.success()
+        //output.success()
+        let output_str = String::from_utf8_lossy(&output.stdout);
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        println!("{}", stderr);
+        println!("{}", output_str);
+        !output_str.contains("ERROR")
     }
 
     pub fn download_image(&self, image_id: &str, image_url: &str) -> bool {

@@ -103,15 +103,20 @@ pub fn do_task(task: Task, pool: &my::Pool) {
             */
             update_task(&task, TaskStatus::InProgress, &pool);
             let albums = youtube_service.get_album_data(&artist_name);
-            for album in albums {
-                if let Some(artist) = create_artist(&album.artist, &pool) {
-                    let _album = create_album(&album, artist, &pool);
-                    let album_clone = album.clone();
-                    create_task(TaskType::GetSongData(album), &pool);
-                    create_task(TaskType::GetAlbumImage(album_clone), &pool);
+            if albums.len() > 0 {
+                for album in albums {
+                    if let Some(artist) = create_artist(&album.artist, &pool) {
+                        let _album = create_album(&album, artist, &pool);
+                        let album_clone = album.clone();
+                        create_task(TaskType::GetSongData(album), &pool);
+                        create_task(TaskType::GetAlbumImage(album_clone), &pool);
+                    }
                 }
+                update_task(&task, TaskStatus::Complete, &pool);
+            } else {
+                warn!("Task aborted. Retrying.");
+                update_task(&task, TaskStatus::Pending, &pool);
             }
-            update_task(&task, TaskStatus::Complete, &pool);
         }
         TaskType::GetAlbumImage(ref album_meta) => {
             update_task(&task, TaskStatus::InProgress, &pool);
@@ -136,11 +141,16 @@ pub fn do_task(task: Task, pool: &my::Pool) {
             let meta = album_meta.clone();
             if let Some(album) = album_repo.find_by_external_id(meta.id, &pool) {
                 let songs = youtube_service.get_track_list(album_meta.id.clone().as_str());
-                for song in songs {
-                    let _song = create_song(&song, &album, &pool);
-                    create_task(TaskType::DownloadSong(song), &pool);
+                if songs.len() > 0 {
+                    for song in songs {
+                        let _song = create_song(&song, &album, &pool);
+                        create_task(TaskType::DownloadSong(song), &pool);
+                    }
+                    update_task(&task, TaskStatus::Complete, &pool);
+                } else {
+                    warn!("Task aborted. Retrying.");
+                    update_task(&task, TaskStatus::Pending, &pool);
                 }
-                update_task(&task, TaskStatus::Complete, &pool);
             } else {
                 update_task(&task, TaskStatus::Complete, &pool);
             }
@@ -148,9 +158,21 @@ pub fn do_task(task: Task, pool: &my::Pool) {
         TaskType::DownloadSong(ref song_meta) => {
             update_task(&task, TaskStatus::InProgress, &pool);
             let meta = song_meta.clone();
-            if let Some(song) = song_repo.find_by_external_id(meta.id, &pool) {
-                youtube_service.download_song(song.external_id.as_str(), song.filename.as_str());
-                update_task(&task, TaskStatus::Complete, &pool);
+            if let Some(album) = album_repo.find_by_external_id(meta.album_id, &pool) {
+                let album_id = album.id.to_string();
+                if let Some(song) = song_repo.find_one_by(
+                    map! { "external_id" => meta.id.as_str(), "album_id" => album_id.as_str()},
+                    &pool,
+                ) {
+                    if youtube_service
+                        .download_song(song.external_id.as_str(), song.filename.as_str())
+                    {
+                        update_task(&task, TaskStatus::Complete, &pool);
+                    } else {
+                        warn!("Task FAILED. Retrying.");
+                        update_task(&task, TaskStatus::Pending, &pool);
+                    }
+                }
             }
         }
     }

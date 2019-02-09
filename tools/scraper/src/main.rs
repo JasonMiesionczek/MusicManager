@@ -55,7 +55,9 @@ impl Config {
 
         let script = match mode {
             Mode::Album => include_str!("scripts/album.js").to_string(),
-            Mode::Song => include_str!("scripts/songs.js").to_string(),
+            Mode::Song => include_str!("scripts/songs.js")
+                .to_string()
+                .replace("%ALBUM_ID%", album_id.clone().unwrap().as_str()),
             Mode::Image => include_str!("scripts/album_image.js").to_string(),
             Mode::Artist => include_str!("scripts/artist_image.js").to_string(),
         };
@@ -81,6 +83,7 @@ pub enum Cmd {
     Songs { data: Vec<Song> },
     Image { data: String },
     Artist { data: String },
+    Abort,
 }
 
 #[derive(Deserialize, Debug, Serialize)]
@@ -98,6 +101,7 @@ pub struct Song {
     name: String,
     num: u32,
     image: String,
+    album_id: String,
 }
 
 fn main() {
@@ -114,6 +118,10 @@ fn main() {
         .user_data(0)
         .invoke_handler(|webview, arg| {
             match serde_json::from_str(arg).unwrap() {
+                Cmd::Abort => {
+                    println!("ABORT");
+                    webview.terminate();
+                }
                 Cmd::Artist { data } => {
                     println!("{}", data);
                     webview.terminate();
