@@ -1,3 +1,3 @@
-[submodule "thirdparty/barrel"]
-	path = thirdparty/barrel
+[submodule "server/thirdparty/barrel"]
+	path = server/thirdparty/barrel
 	url = git@github.com:JasonMiesionczek/barrel.git

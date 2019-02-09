@@ -1,0 +1,35 @@
+version: "3"
+
+services:
+  web:
+    build: ./clients/web
+    volumes:
+      - ./clients/web:/usr/src/app
+    ports:
+      - "3000:3000"
+    command: bash -c "yarn && yarn start"
+    links:
+      - api_server
+
+  api_server:
+    build: ./server
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./server:/usr/src/app
+    links:
+      - db
+    command: bash -c "cargo watch -w api -x run"
+
+  db:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: bobdole
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
