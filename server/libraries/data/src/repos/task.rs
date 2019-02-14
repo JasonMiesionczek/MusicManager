@@ -23,6 +23,10 @@ impl Repository for TaskRepository {
         String::from("INSERT INTO tasks (status, task_type, external_id, task_data) VALUES (:status, :task_type, :external_id, :task_data)")
     }
 
+    fn order_by(&self) -> String {
+        String::from("ORDER BY id")
+    }
+
     fn create<'a>(
         &self,
         item: &'a mut Self::Item,
@@ -37,7 +41,9 @@ impl Repository for TaskRepository {
             TaskType::GetSongData(album_meta) | TaskType::GetAlbumImage(album_meta) => {
                 serde_json::to_string(&album_meta).unwrap()
             }
-            TaskType::DownloadSong(song_meta) => serde_json::to_string(&song_meta).unwrap(),
+            TaskType::DownloadSong(song_meta) | TaskType::GenerateWaveform(song_meta) => {
+                serde_json::to_string(&song_meta).unwrap()
+            }
         };
 
         let result = stmt.execute(params! {

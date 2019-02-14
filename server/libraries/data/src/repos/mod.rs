@@ -16,6 +16,7 @@ pub trait Repository {
 
     fn select_query(&self) -> String;
     fn insert_query(&self) -> String;
+    fn order_by(&self) -> String;
 
     fn create<'a>(
         &self,
@@ -57,7 +58,12 @@ pub trait Repository {
             .map(|(k, v)| format!("{} = '{}'", k, v))
             .collect::<Vec<String>>()
             .join(" AND ");
-        let query = format!("{} WHERE {}", self.select_query(), params);
+        let query = format!(
+            "{} WHERE {} {}",
+            self.select_query(),
+            params,
+            self.order_by()
+        );
         let results = self.query_and_map(pool, query, |row| Self::Item::from(row));
         results
     }
@@ -70,7 +76,11 @@ pub trait Repository {
     }
 
     fn get_all(&self, pool: &my::Pool) -> Vec<Self::Item> {
-        self.query_and_map(&pool, self.select_query(), |row| Self::Item::from(row))
+        self.query_and_map(
+            &pool,
+            format!("{} {}", self.select_query(), self.order_by()),
+            |row| Self::Item::from(row),
+        )
     }
 
     fn query_and_map<F>(&self, pool: &my::Pool, query: String, func: F) -> Vec<Self::Item>

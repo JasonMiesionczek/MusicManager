@@ -38,7 +38,7 @@ function abort() {
 
 function start() {
   setTimeout(getSongData, 10000);
-  settimeout(abort, 60000);
+  setTimeout(abort, 60000);
 }
 
 start();

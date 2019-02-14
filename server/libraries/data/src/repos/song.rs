@@ -27,6 +27,10 @@ impl Repository for SongRepository {
         )
     }
 
+    fn order_by(&self) -> String {
+        String::from("ORDER BY track")
+    }
+
     fn create<'a>(
         &self,
         item: &'a mut Self::Item,

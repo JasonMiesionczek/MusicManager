@@ -1,5 +1,5 @@
 [package]
-name = "web"
+name = "api"
 version = "0.1.0"
 authors = ["Jason Miesionczek <atmospherian@gmail.com>"]
 edition = "2018"

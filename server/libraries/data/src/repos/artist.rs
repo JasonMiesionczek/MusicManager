@@ -23,6 +23,10 @@ impl Repository for ArtistRepository {
         String::from("INSERT INTO artists (name, external_id) VALUES (:name, :external_id)")
     }
 
+    fn order_by(&self) -> String {
+        String::from("ORDER BY name")
+    }
+
     fn create<'a>(
         &self,
         item: &'a mut Self::Item,

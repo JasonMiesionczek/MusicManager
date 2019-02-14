@@ -168,6 +168,25 @@ pub fn do_task(task: Task, pool: &my::Pool) {
                         .download_song(song.external_id.as_str(), song.filename.as_str())
                     {
                         update_task(&task, TaskStatus::Complete, &pool);
+                        create_task(TaskType::GenerateWaveform(song_meta.clone()), &pool);
+                    } else {
+                        warn!("Task FAILED. Retrying.");
+                        update_task(&task, TaskStatus::Pending, &pool);
+                    }
+                }
+            }
+        }
+        TaskType::GenerateWaveform(ref song_meta) => {
+            update_task(&task, TaskStatus::InProgress, &pool);
+            let meta = song_meta.clone();
+            if let Some(album) = album_repo.find_by_external_id(meta.album_id, &pool) {
+                let album_id = album.id.to_string();
+                if let Some(song) = song_repo.find_one_by(
+                    map! { "external_id" => meta.id.as_str(), "album_id" => album_id.as_str()},
+                    &pool,
+                ) {
+                    if youtube_service.generate_waveform(song.filename.as_str()) {
+                        update_task(&task, TaskStatus::Complete, &pool);
                     } else {
                         warn!("Task FAILED. Retrying.");
                         update_task(&task, TaskStatus::Pending, &pool);

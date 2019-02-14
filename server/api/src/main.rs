@@ -14,8 +14,14 @@ use rocket_cors::Cors;
 use serde_derive::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
+struct ArtistsResult {
+    artists: Vec<ArtistResult>,
+}
+
+#[derive(Serialize, Deserialize)]
 struct ArtistResult {
-    artists: Vec<Artist>,
+    artist: Artist,
+    album_count: u32,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -32,10 +38,19 @@ struct SongResult {
 }
 
 #[get("/library/artists", format = "json", rank = 5)]
-fn get(service: State<LibraryService>) -> Option<Json<ArtistResult>> {
+fn artists(service: State<LibraryService>) -> Option<Json<ArtistsResult>> {
     let pool = ::data::get_pool();
     let artists = service.get_artists(&pool);
-    Some(Json(ArtistResult { artists: artists }))
+    let artists = artists
+        .into_iter()
+        .map(|a| ArtistResult {
+            artist: a.clone(),
+            album_count: service
+                .get_artist_albums(a.clone().id.to_string().as_str(), &pool)
+                .len() as u32,
+        })
+        .collect();
+    Some(Json(ArtistsResult { artists: artists }))
 }
 
 #[get("/library/albums/<artist_id>", format = "json", rank = 1)]
@@ -89,7 +104,7 @@ fn cors_options_all() -> Cors {
 fn rckt() -> rocket::Rocket {
     rocket::ignite()
         .mount("/", StaticFiles::from("www/build"))
-        .mount("/api", routes![get, tasks, albums, songs])
+        .mount("/api", routes![artists, tasks, albums, songs])
         .attach(cors_options_all())
         .manage(LibraryService::new())
         .manage(TaskRepository::new())

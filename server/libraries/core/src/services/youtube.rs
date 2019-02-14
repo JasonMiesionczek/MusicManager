@@ -98,7 +98,8 @@ impl YoutubeService {
         let stderr = String::from_utf8_lossy(&output.stderr);
         println!("{}", stderr);
         println!("{}", output_str);
-        !output_str.contains("ERROR")
+        let has_error = output_str.contains("ERROR") || stderr.contains("ERROR");
+        !has_error
     }
 
     pub fn download_image(&self, image_id: &str, image_url: &str) -> bool {
@@ -108,6 +109,27 @@ impl YoutubeService {
         let output = Command::new("curl")
             .arg(image_url)
             .arg("--output")
+            .arg(output_file)
+            .status()
+            .expect("failed to download image");
+        output.success()
+    }
+
+    pub fn generate_waveform(&self, filename: &str) -> bool {
+        let image_dir =
+            dotenv::var("IMAGE_DOWNLOAD_DIR").expect("image download directory not specified");
+        let music_dir =
+            dotenv::var("MUSIC_DOWNLOAD_DIR").expect("download directory not specified");
+        let input_file = format!("{}/{}", music_dir, filename);
+        let output_file = format!("{}/{}.png", image_dir, filename);
+        let output = Command::new("ffmpeg")
+            .arg("-y")
+            .arg("-i")
+            .arg(input_file)
+            .arg("-filter_complex")
+            .arg("showwavespic=s=1024x200:colors=white")
+            .arg("-frames:v")
+            .arg("1")
             .arg(output_file)
             .status()
             .expect("failed to download image");

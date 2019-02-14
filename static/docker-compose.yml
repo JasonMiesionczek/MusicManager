@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+  static:
+    build: .
+    ports:
+      - "90:90"
+    volumes:
+      - ${MUSIC_DIR}:/var/www/html/music
+      - ${IMAGE_DIR}:/var/www/html/images
+    command: service nginx start

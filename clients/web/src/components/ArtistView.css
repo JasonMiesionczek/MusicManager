@@ -1,0 +1,7 @@
+.artist-card {
+    visibility: hidden;
+    background-color: rgba(0, 0, 0, 0.85);
+    height: inherit;
+    padding: 20px;
+    cursor: pointer;
+}

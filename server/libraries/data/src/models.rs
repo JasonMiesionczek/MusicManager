@@ -32,6 +32,7 @@ pub enum TaskStatus {
     Pending,
     InProgress,
     Complete,
+    Failed,
 }
 
 impl Display for TaskStatus {
@@ -40,6 +41,7 @@ impl Display for TaskStatus {
             TaskStatus::Pending => write!(f, "pending"),
             TaskStatus::InProgress => write!(f, "in-progress"),
             TaskStatus::Complete => write!(f, "complete"),
+            TaskStatus::Failed => write!(f, "failed"),
         }
     }
 }
@@ -51,6 +53,7 @@ pub enum TaskType {
     GetAlbumImage(AlbumMeta),
     GetSongData(AlbumMeta),
     DownloadSong(SongMeta),
+    GenerateWaveform(SongMeta),
 }
 
 impl Display for TaskType {
@@ -62,6 +65,7 @@ impl Display for TaskType {
             TaskType::GetAlbumImage(_) => write!(f, "get_album_image"),
             TaskType::GetSongData(_) => write!(f, "get_song_data"),
             TaskType::DownloadSong(_) => write!(f, "download_song"),
+            TaskType::GenerateWaveform(_) => write!(f, "generate_waveform"),
         }
     }
 }
@@ -93,13 +97,13 @@ impl Display for Task {
 
 impl From<Row> for Task {
     fn from(mut item: Row) -> Self {
-        //let (id, task_status, task_type, external_id, task_data) = from_row(item);
         let id: u32 = item.take("id").unwrap();
         let status: String = item.take("status").unwrap();
         let status_enum = match status.as_str() {
             "pending" => TaskStatus::Pending,
             "in-progress" => TaskStatus::InProgress,
             "complete" => TaskStatus::Complete,
+            "failed" => TaskStatus::Failed,
             _ => panic!("unknown status"),
         };
         let task_data: String = item.take("task_data").unwrap();
@@ -118,6 +122,10 @@ impl From<Row> for Task {
             "download_song" => {
                 let song: SongMeta = serde_json::from_str(task_data.as_str()).unwrap();
                 TaskType::DownloadSong(song)
+            }
+            "generate_waveform" => {
+                let song: SongMeta = serde_json::from_str(task_data.as_str()).unwrap();
+                TaskType::GenerateWaveform(song)
             }
             _ => panic!("unknown task type"),
         };
