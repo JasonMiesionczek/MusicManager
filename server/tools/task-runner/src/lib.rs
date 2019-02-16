@@ -124,17 +124,27 @@ pub fn do_task(task: Task, pool: &my::Pool) {
             let id = meta.id;
             if let Some(_album) = album_repo.find_by_external_id(id, &pool) {
                 let image_url = youtube_service.get_album_image_url(album_meta.id.as_str());
-                youtube_service.download_image(album_meta.clone().id.as_str(), image_url.as_str());
+                if youtube_service
+                    .download_image(album_meta.clone().id.as_str(), image_url.as_str())
+                {
+                    update_task(&task, TaskStatus::Complete, &pool);
+                } else {
+                    warn!("Task failed. Retrying.");
+                    update_task(&task, TaskStatus::Pending, &pool);
+                }
             }
-            update_task(&task, TaskStatus::Complete, &pool);
         }
         TaskType::GetArtistImage(ref artist_name) => {
             update_task(&task, TaskStatus::InProgress, &pool);
             let image_url = youtube_service.get_artist_image_url(artist_name.as_str());
             if let Some(artist) = find_artist(artist_name, &pool) {
-                youtube_service.download_image(artist.external_id.as_str(), image_url.as_str());
+                if youtube_service.download_image(artist.external_id.as_str(), image_url.as_str()) {
+                    update_task(&task, TaskStatus::Complete, &pool);
+                } else {
+                    warn!("Task failed. Retrying.");
+                    update_task(&task, TaskStatus::Pending, &pool);
+                }
             }
-            update_task(&task, TaskStatus::Complete, &pool);
         }
         TaskType::GetSongData(ref album_meta) => {
             update_task(&task, TaskStatus::InProgress, &pool);

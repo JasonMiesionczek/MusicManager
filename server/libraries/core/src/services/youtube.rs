@@ -106,6 +106,7 @@ impl YoutubeService {
         let image_dir =
             dotenv::var("IMAGE_DOWNLOAD_DIR").expect("image download directory not specified");
         let output_file = format!("{}/{}.jpg", image_dir, image_id);
+        println!("IMAGE URL: {}", image_url);
         let output = Command::new("curl")
             .arg(image_url)
             .arg("--output")
