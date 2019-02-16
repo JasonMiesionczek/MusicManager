@@ -11,7 +11,7 @@ export class MenuBar extends React.Component<{}, {}> {
             <div className="menu-bar">
                 <div className="container-fluid">
                     <div className="row">
-                        <div className="col-sm-2 App-title">
+                        <div className="col-sm-3 App-title">
                             <h3><i className="fas fa-music" /> <span>Music Manager</span></h3>
                         </div>
                         <div className="col-sm-3">
@@ -30,7 +30,7 @@ export class MenuBar extends React.Component<{}, {}> {
                                 </div>
                             </div>
                         </div>
-                        <div className="col-sm-7">
+                        <div className="col-sm-6">
                             {this.props.children}
                         </div>
                     </div>

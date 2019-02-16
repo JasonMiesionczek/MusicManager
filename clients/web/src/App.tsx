@@ -2,10 +2,13 @@ import * as React from "react";
 import "./App.css";
 
 import { Route, Switch } from 'react-router';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { AlbumView } from './components/AlbumView';
 import ArtistView from './components/ArtistView';
 import { AudioPlayer } from './components/AudioPlayer';
 import { MenuBar } from './components/MenuBar';
+import { PlaylistView } from './components/PlaylistView';
 import { QueueView } from './components/QueueView';
 import { SongView } from './components/SongView';
 import { Album, Artist, Song } from './services/LibraryService';
@@ -52,6 +55,7 @@ class App extends React.Component<{}, AppState> {
   public render() {
     return (
       <div>
+        <ToastContainer />
         <MenuBar>
           <AudioPlayer queue={this.state.queue} song={this.state.currentSong} album={this.state.album} artist={this.state.artist} nextSongHandler={this.nextSongHandler} prevSongHandler={this.prevSongHandler} />
         </MenuBar>
@@ -60,7 +64,8 @@ class App extends React.Component<{}, AppState> {
           <Route path="/artists" component={ArtistView} />
           <Route path="/artist/:artist_id" component={AlbumView} />
           <Route path="/album/:album_id" render={routerProps => (<SongView {...routerProps} playSongHandler={this.playSong.bind(this)} />)} />
-          <Route path="/queue" render={routerProps => (<QueueView {...routerProps} queue={this.state.queue} currentSongHandler={this.setCurrentSong.bind(this)} />)} />
+          <Route path="/queue" render={routerProps => (<QueueView {...routerProps} queuePosition={this.state.queuePosition} queue={this.state.queue} clearQueueHandler={this.clearQueue.bind(this)} currentSongHandler={this.setCurrentSong.bind(this)} />)} />
+          <Route path="/playlists" component={PlaylistView} />
         </Switch>
       </div>
     );
@@ -69,6 +74,7 @@ class App extends React.Component<{}, AppState> {
   private playSong = (song: Song, album: Album, artist: Artist) => {
     const queue = this.state.queue;
     queue.push({ song, album, artist });
+    toast.success(`${song.name} added to queue`);
     localStorage.setItem("queue", JSON.stringify(queue));
     if (queue.length === 1) {
       this.setState({ currentSong: song, album, artist, queue });
@@ -123,6 +129,11 @@ class App extends React.Component<{}, AppState> {
       currentSong: queue[idx].song,
       queuePosition: idx,
     });
+  }
+
+  private clearQueue = () => {
+    localStorage.removeItem("queue");
+    this.setState({ queue: [] });
   }
 }
 

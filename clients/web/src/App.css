@@ -3,8 +3,21 @@ img {
   max-width: 100%;
 }
 
+a {
+  color: #ddd;
+}
+
+a:hover {
+  color: #fff;
+}
+
+.chevron {
+  color: rgba(010,100,255,0.65);
+  font-size: 14px;
+}
+
 h1,h2,h3,h4,h5 {
-  text-shadow: 2px 2px 2px 2px rgba(0,0,0,0.5);
+  text-shadow: 2px 2px 4px  rgba(0,0,0,0.9);
 }
 
 /* no-gutters Class Rules */
@@ -152,6 +165,10 @@ i {
     height: inherit;
     padding: 20px;
     cursor: pointer;
+}
+
+.song-card-active {
+  background-image: linear-gradient(rgba(100,100,255,0.5), rgba(0,0,0,0.75));
 }
 
 .song-card-hover {

@@ -250,3 +250,50 @@ impl From<Row> for Song {
         }
     }
 }
+
+#[derive(Deserialize, Debug, Serialize, Clone)]
+pub struct Playlist {
+    pub id: u32,
+    pub name: String,
+}
+
+impl Playlist {
+    pub fn new(name: String) -> Self {
+        Playlist { id: 0, name }
+    }
+}
+
+impl From<Row> for Playlist {
+    fn from(item: Row) -> Self {
+        let (id, name) = from_row(item);
+        Playlist { id, name }
+    }
+}
+
+#[derive(Deserialize, Debug, Serialize, Clone)]
+pub struct PlaylistSongItem {
+    pub id: u32,
+    pub playlist_id: u32,
+    pub song_id: u32,
+}
+
+impl PlaylistSongItem {
+    pub fn new(playlist_id: u32, song_id: u32) -> Self {
+        PlaylistSongItem {
+            id: 0,
+            playlist_id,
+            song_id,
+        }
+    }
+}
+
+impl From<Row> for PlaylistSongItem {
+    fn from(item: Row) -> Self {
+        let (id, playlist_id, song_id) = from_row(item);
+        PlaylistSongItem {
+            id,
+            playlist_id,
+            song_id,
+        }
+    }
+}

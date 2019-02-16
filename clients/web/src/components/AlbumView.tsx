@@ -47,7 +47,7 @@ export class AlbumView extends React.Component<AlbumViewProps, { data: AlbumResu
                     <div className="row no-gutters">
                         <div className="row">
                             <div className="col-sm-12 artist-header">
-                                <h2><Link to="/artists">Artists</Link> <i className="fas fa-chevron-right" /> {this.state.data.artist.name}</h2>
+                                <h2><Link to="/artists">Artists</Link> <i className="fas fa-chevron-right chevron" /> {this.state.data.artist.name}</h2>
                                 <div>
                                     <span>{this.state.data.albums.length} Albums</span>
                                 </div>

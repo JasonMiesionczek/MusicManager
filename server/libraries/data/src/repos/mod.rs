@@ -3,11 +3,15 @@ use std::collections::HashMap;
 
 mod album;
 mod artist;
+mod playlist;
+mod playlistsong;
 mod song;
 mod task;
 
 pub use album::AlbumRepository;
 pub use artist::ArtistRepository;
+pub use playlist::PlaylistRepository;
+pub use playlistsong::PlaylistSongRepository;
 pub use song::SongRepository;
 pub use task::TaskRepository;
 

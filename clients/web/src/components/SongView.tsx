@@ -1,7 +1,9 @@
 import * as $ from 'jquery';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { LibraryService, SongResult } from '../services/LibraryService';
+import { Playlist, PlaylistService } from '../services/PlaylistService';
 
 interface SongViewProps {
     match: {
@@ -12,7 +14,7 @@ interface SongViewProps {
     playSongHandler: any;
 }
 
-export class SongView extends React.Component<SongViewProps, { data: SongResult, isLoading: boolean }> {
+export class SongView extends React.Component<SongViewProps, { data: SongResult, isLoading: boolean, playlists: Playlist[] }> {
     constructor(props: SongViewProps) {
         super(props);
         this.state = {
@@ -30,14 +32,17 @@ export class SongView extends React.Component<SongViewProps, { data: SongResult,
                 },
                 songs: []
             },
-            isLoading: true
+            isLoading: true,
+            playlists: []
         }
     }
 
     public async componentDidMount() {
         const ls = new LibraryService();
+        const ps = new PlaylistService();
         const result = await ls.getSongs(this.props.match.params.album_id);
-        this.setState({ data: result, isLoading: false });
+        const lists = await ps.getPlaylists();
+        this.setState({ data: result, isLoading: false, playlists: lists });
     }
 
     public render() {
@@ -48,8 +53,22 @@ export class SongView extends React.Component<SongViewProps, { data: SongResult,
                 <React.Fragment>
                     <div className="row">
                         <div className="col-sm-12 artist-header">
-                            <h2><Link to="/artists">Artists</Link> <i className="fas fa-chevron-right" /> <Link to={`/artist/${this.state.data.artist.id}`}>{this.state.data.artist.name}</Link> <i className="fas fa-chevron-right" /> {this.state.data.album.name}</h2>
+                            <h2><Link to="/artists">Artists</Link> <i className="fas fa-chevron-right chevron" /> <Link to={`/artist/${this.state.data.artist.id}`}>{this.state.data.artist.name}</Link> <i className="fas fa-chevron-right chevron" /> {this.state.data.album.name}</h2>
 
+                            <form className="form-inline" onSubmit={this.addToPlaylist}>
+                                <div className="form-group">
+                                    <button className="btn btn-sm btn-secondary" onClick={this.addToQueue}>
+                                        Add to Queue
+                                    </button>
+                                </div>
+                                <div className="form-group" style={{ marginLeft: 10 + "px" }}>
+                                    <select className="form-control-sm" id="playlists">
+                                        {this.state.playlists.map(p => (<option key={p.id} value={p.id}>{p.name}</option>))}
+                                    </select>
+                                    <input type="submit" className="btn btn-sm btn-secondary" style={{ marginLeft: 5 + "px" }} value="Add to Playlist" />
+
+                                </div>
+                            </form>
                         </div>
                     </div>
                     <div className="row no-gutters">
@@ -62,10 +81,29 @@ export class SongView extends React.Component<SongViewProps, { data: SongResult,
                             </div>
                         ))}
                     </div>
-                </React.Fragment>
+                </React.Fragment >
             );
         }
 
+    }
+
+    private addToPlaylist = (event: any) => {
+        event.preventDefault();
+        const element = (document.getElementById('playlists')! as HTMLSelectElement);
+        const value = element.value;
+        const name = element.textContent;
+        const ps = new PlaylistService();
+        this.state.data.songs.forEach(song => {
+            ps.addSongToPlaylist(Number(value), song.id);
+            toast.success(`${song.name} added to ${name}`);
+        });
+    }
+
+    private addToQueue = () => {
+        const { album, artist } = this.state.data;
+        this.state.data.songs.forEach(song => {
+            this.props.playSongHandler(song, album, artist);
+        })
     }
 
     private onHover = (event: React.MouseEvent<HTMLElement>) => {

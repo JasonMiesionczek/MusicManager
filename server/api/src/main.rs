@@ -2,7 +2,7 @@
 
 use ::data::{
     models::*,
-    repos::{AlbumRepository, ArtistRepository, Repository, TaskRepository},
+    repos::{AlbumRepository, ArtistRepository, PlaylistRepository, Repository, TaskRepository},
 };
 use core::services::LibraryService;
 use dotenv;
@@ -96,6 +96,55 @@ fn tasks(tasks: State<TaskRepository>) -> Option<Json<Vec<Task>>> {
     Some(Json(tasks))
 }
 
+#[get("/playlists", format = "json")]
+fn playlists(playlist_repo: State<PlaylistRepository>) -> Option<Json<Vec<Playlist>>> {
+    let pool = ::data::get_pool();
+    let playlists = playlist_repo.get_all(&pool);
+    Some(Json(playlists))
+}
+
+#[derive(Deserialize)]
+struct PlaylistForm {
+    name: String,
+}
+
+#[post("/playlist", data = "<playlist>", format = "json")]
+fn create_playlist(
+    playlist: Json<PlaylistForm>,
+    repo: State<PlaylistRepository>,
+) -> Option<Json<bool>> {
+    let mut pl = Playlist::new(playlist.name.clone());
+    let pool = ::data::get_pool();
+    repo.create(&mut pl, &pool).unwrap();
+    Some(Json(true))
+}
+
+#[derive(Deserialize)]
+struct PlaylistSong {
+    playlist_id: u32,
+    song_id: u32,
+}
+
+#[post("/playlist_song", data = "<playlist_song>", format = "json")]
+fn add_song_to_playlist(playlist_song: Json<PlaylistSong>) -> Option<Json<bool>> {
+    let pool = ::data::get_pool();
+    pool.prep_exec(
+        format!(
+            "INSERT INTO playlists_songs (playlist_id, song_id) VALUES ({}, {})",
+            playlist_song.playlist_id, playlist_song.song_id
+        ),
+        (),
+    )
+    .unwrap();
+    Some(Json(true))
+}
+
+#[get("/playlist/<playlist_id>", format = "json")]
+fn get_playlist_songs(playlist_id: u32, service: State<LibraryService>) -> Option<Json<Vec<Song>>> {
+    let songs = service.get_playlist_songs(playlist_id, &::data::get_pool());
+    Some(Json(songs))
+}
+
 fn cors_options_all() -> Cors {
     // You can also deserialize this
     Default::default()
@@ -104,10 +153,23 @@ fn cors_options_all() -> Cors {
 fn rckt() -> rocket::Rocket {
     rocket::ignite()
         .mount("/", StaticFiles::from("www/build"))
-        .mount("/api", routes![artists, tasks, albums, songs])
+        .mount(
+            "/api",
+            routes![
+                artists,
+                tasks,
+                albums,
+                songs,
+                playlists,
+                create_playlist,
+                add_song_to_playlist,
+                get_playlist_songs,
+            ],
+        )
         .attach(cors_options_all())
         .manage(LibraryService::new())
         .manage(TaskRepository::new())
+        .manage(PlaylistRepository::new())
 }
 
 fn main() {

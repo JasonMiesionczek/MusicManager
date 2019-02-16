@@ -1,9 +1,13 @@
 COLOR ?= always # Valid COLOR options: {always, auto, never}
 CARGO = cargo --color $(COLOR)
+SERVER_DIR = server
 
 .PHONY: all bench build build-scraper check clean doc install scraper publish run test update run-api
 
 all: build
+
+migrate:
+	cd $(SERVER_DIR) && cargo run -p cli -- db migrate
 
 bench:
 	@$(CARGO) bench

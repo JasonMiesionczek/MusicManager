@@ -67,7 +67,32 @@ pub fn get_migrations() -> Vec<String> {
             m.change_table("songs", |t| {
                 t.add_column("filename", varchar(255));
             });
-        })
+        }),
+        migration(|m| {
+            m.create_table("playlists", |t| {
+                t.add_column("name", varchar(255));
+            });
+        }),
+        migration(|m| {
+            m.create_table("playlists_songs", |t| {
+                t.add_column("playlist_id", integer());
+                t.add_column("song_id", integer());
+                let playlist_fk = ForeignKey {
+                    child_column: "playlist_id",
+                    parent_table: "playlists",
+                    parent_column: "id",
+                    actions: vec![ForeignKeyAction::Delete(ForeignKeyOption::Cascade)],
+                };
+                t.add_column("playlist_fk", foreign_key(playlist_fk));
+                let song_fk = ForeignKey {
+                    child_column: "song_id",
+                    parent_table: "songs",
+                    parent_column: "id",
+                    actions: vec![ForeignKeyAction::Delete(ForeignKeyOption::Cascade)],
+                };
+                t.add_column("song_fk", foreign_key(song_fk));
+            });
+        }),
     ];
 
     migrations

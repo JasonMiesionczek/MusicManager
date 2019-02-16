@@ -1,6 +1,8 @@
 use data::{
     models::*,
-    repos::{AlbumRepository, ArtistRepository, Repository, SongRepository},
+    repos::{
+        AlbumRepository, ArtistRepository, PlaylistSongRepository, Repository, SongRepository,
+    },
 };
 use serde_derive::{Deserialize, Serialize};
 
@@ -93,6 +95,19 @@ impl LibraryService {
     pub fn get_artists(&self, pool: &mysql::Pool) -> Vec<Artist> {
         let artist_repo = ArtistRepository::new();
         artist_repo.get_all(&pool)
+    }
+
+    pub fn get_playlist_songs(&self, playlist_id: u32, pool: &mysql::Pool) -> Vec<Song> {
+        let playlist_songs_repo = PlaylistSongRepository::new();
+        let song_repo = SongRepository::new();
+        let list_id = playlist_id.to_string();
+        let mut result = Vec::new();
+        let song_ids =
+            playlist_songs_repo.find_by(crate::map! {"playlist_id" => list_id.as_str()}, &pool);
+        for song_id in song_ids {
+            result.push(song_repo.find_by_id(song_id.song_id, &pool).unwrap());
+        }
+        result
     }
 
     // pub fn get_all_music(&self, pool: &mysql::Pool) -> Vec<LibraryArtist> {
