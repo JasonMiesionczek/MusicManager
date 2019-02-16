@@ -41,7 +41,7 @@
   },
   "proxy": {
     "/api": {
-      "target": "http://localhost:3001/",
+      "target": "http://159.65.44.81:8000/",
       "ws": true
     }
   }

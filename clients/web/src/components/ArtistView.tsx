@@ -31,7 +31,7 @@ class ArtistView extends Component<ArtistViewProps, { data: ArtistsResult, isLoa
                 <div className="row no-gutters" >
                     {this.state.data.artists.map(data => (
                         // tslint:disable-next-line:jsx-no-lambda
-                        <div className="col-xs-6 col-sm-3" key={data.artist.id} onClick={(e) => this.onClick(e, data.artist.id)} onMouseEnter={this.onHover} onMouseLeave={this.onOut} style={{ height: 200 + "px", backgroundSize: "cover", backgroundPosition: "center", backgroundImage: `url(http://localhost:90/images/${data.artist.external_id}.jpg)` }}>
+                        <div className="col-xs-6 col-sm-3" key={data.artist.id} onClick={(e) => this.onClick(e, data.artist.id)} onMouseEnter={this.onHover} onMouseLeave={this.onOut} style={{ height: 200 + "px", backgroundSize: "cover", backgroundPosition: "center", backgroundImage: `url(http://159.65.44.81:90/images/${data.artist.external_id}.jpg)` }}>
                             <div className="artist-card" >
                                 <h3>{data.artist.name}</h3>
                                 <div>

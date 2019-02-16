@@ -55,7 +55,7 @@ export class AlbumView extends React.Component<AlbumViewProps, { data: AlbumResu
                             <div className="row no-gutters">
                                 {this.state.data.albums.map(album => (
                                     // tslint:disable-next-line:jsx-no-lambda
-                                    <div className="col-xs-6 col-sm-3" key={album.id} onClick={(e) => this.onClick(e, album.id)} onMouseEnter={this.onHover} onMouseLeave={this.onOut} style={{ height: 200 + "px", backgroundSize: "cover", backgroundPosition: "center", backgroundImage: `url(http://localhost:90/images/${album.external_id}.jpg)` }}>
+                                    <div className="col-xs-6 col-sm-3" key={album.id} onClick={(e) => this.onClick(e, album.id)} onMouseEnter={this.onHover} onMouseLeave={this.onOut} style={{ height: 200 + "px", backgroundSize: "cover", backgroundPosition: "center", backgroundImage: `url(http://159.65.44.81:90/images/${album.external_id}.jpg)` }}>
                                         <div className="album-card">
                                             <h3>{album.name}</h3>
                                             <h5>{album.year}</h5>

@@ -40,19 +40,19 @@ export interface SongResult {
 
 export class LibraryService {
   public async getArtists(): Promise<ArtistsResult> {
-    const response = await fetch("/api/library/artists");
+      const response = await fetch("http://159.65.44.81:8000/api/library/artists");
     const json = await response.json();
     return json;
   }
 
   public async getAlbums(artistId: number): Promise<AlbumResult> {
-    const response = await fetch(`/api/library/albums/${artistId}`);
+      const response = await fetch(`http://159.65.44.81:8000/api/library/albums/${artistId}`);
     const json = await response.json();
     return json;
   }
 
   public async getSongs(albumId: number): Promise<SongResult> {
-    const response = await fetch(`/api/library/songs/${albumId}`);
+      const response = await fetch(`http://159.65.44.81:8000/api/library/songs/${albumId}`);
     const json = await response.json();
     return json;
   }

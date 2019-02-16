@@ -27,7 +27,7 @@ export class QueueView extends React.Component<QueueViewProps, {}> {
                 </div>
                 <div className="row no-gutters">
                     {this.props.queue.map((item, idx) => (
-                        <div className="col-xs-12 col-sm-12" key={idx} onClick={this.props.currentSongHandler.bind(this, idx)} onMouseEnter={this.onHover} onMouseLeave={this.onOut} style={{ height: 100 + "px", backgroundSize: "1024px 100px", backgroundRepeat: "no-repeat", backgroundPosition: "right", backgroundImage: `url(http://localhost:90/images/${item.song.filename}.png)` }}>
+                        <div className="col-xs-12 col-sm-12" key={idx} onClick={this.props.currentSongHandler.bind(this, idx)} onMouseEnter={this.onHover} onMouseLeave={this.onOut} style={{ height: 100 + "px", backgroundSize: "1024px 100px", backgroundRepeat: "no-repeat", backgroundPosition: "right", backgroundImage: `url(http://159.65.44.81:90/images/${item.song.filename}.png)` }}>
                             <div className={`song-card ${idx === this.props.queuePosition ? 'song-card-active' : ''}`}>
                                 <h5>{idx + 1} <i className="fas fa-chevron-right chevron" /> {item.artist.name} <i className="fas fa-chevron-right chevron" /> {item.album.name}</h5>
                                 <h3>{item.song.name}</h3>
