@@ -1,0 +1,11 @@
+[Unit]
+Description=API server for Music Manager
+After=xvfb.target
+
+[Service]
+EnvironmentFile=/home/code/MusicManager/server/target/release/.env
+ExecStart=/home/code/MusicManager/server/target/release/api
+
+[Install]
+WantedBy=multi-user.target
+

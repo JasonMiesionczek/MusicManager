@@ -120,26 +120,31 @@ fn main() {
             match serde_json::from_str(arg).unwrap() {
                 Cmd::Abort => {
                     println!("ABORT");
-                    webview.terminate();
+                    //webview.terminate();
+		    std::process::exit(1);
                 }
                 Cmd::Artist { data } => {
                     println!("{}", data);
-                    webview.terminate();
+                    //webview.terminate();
+		    std::process::exit(0);
                 }
                 Cmd::Image { data } => {
                     println!("{}", data);
-                    webview.terminate();
+                    //webview.terminate();
+		    std::process::exit(0);
                 }
                 Cmd::Albums { data } => {
                     if let Ok(json_str) = serde_json::to_string(&data) {
                         println!("{}", json_str);
-                        webview.terminate();
+                        //webview.terminate();
+			std::process::exit(0);
                     }
                 }
                 Cmd::Songs { data } => {
                     if let Ok(json_str) = serde_json::to_string(&data) {
                         println!("{}", json_str);
-                        webview.terminate();
+                        //webview.terminate();
+			std::process::exit(0);
                     }
                 }
             }

@@ -1,0 +1,11 @@
+[Unit]
+Description=TaskRunner for Music Manager
+After=Xvfb.target
+
+[Service]
+EnvironmentFile=/home/code/MusicManager/server/target/release/.env
+ExecStart=/home/code/MusicManager/server/target/release/task-runner
+
+[Install]
+WantedBy=multi-user.target
+

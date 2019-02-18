@@ -8,18 +8,18 @@ export interface Playlist {
 
 export class PlaylistService {
     public async getPlaylists(): Promise<Playlist[]> {
-        const response = await fetch('/api/playlists');
+        const response = await fetch('http://musicmanager.hopto.org:8000/api/playlists');
         const data = await response.json();
         return data;
     }
 
     public async createPlaylist(name: string) {
-        await $.ajax('/api/playlist', { data: JSON.stringify({ "name": name }), contentType: 'application/json', type: 'POST' }).promise();
+        await $.ajax('http://musicmanager.hopto.org:8000/api/playlist', { data: JSON.stringify({ "name": name }), contentType: 'application/json', type: 'POST' }).promise();
     }
 
     public async addSongToPlaylist(playlistId: number, songId: number) {
         await $.ajax(
-            '/api/playlist_song',
+            'http://musicmanager.hopto.org:8000/api/playlist_song',
             {
                 contentType: 'application/json',
                 data: JSON.stringify({ "playlist_id": playlistId, "song_id": songId }),
@@ -29,7 +29,7 @@ export class PlaylistService {
     }
 
     public async getPlaylistSongs(playlistId: number): Promise<Song[]> {
-        const response = await fetch(`/api/playlist/${playlistId}`);
+        const response = await fetch(`http://musicmanager.hopto.org:8000/api/playlist/${playlistId}`);
         const data = await response.json();
         return data;
     }

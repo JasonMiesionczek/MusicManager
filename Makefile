@@ -1,49 +1,19 @@
 COLOR ?= always # Valid COLOR options: {always, auto, never}
 CARGO = cargo --color $(COLOR)
 SERVER_DIR = server
+CONF_DIR = conf/systemd
 
-.PHONY: all bench build build-scraper check clean doc install scraper publish run test update run-api
+.PHONY: all build install migrate 
 
 all: build
 
 migrate:
 	cd $(SERVER_DIR) && cargo run -p cli -- db migrate
 
-bench:
-	@$(CARGO) bench
-
-build:
-	@$(CARGO) build
-
-build-scraper:
-	@$(CARGO) build -p scraper --release
-
-check:
-	@$(CARGO) check
-
-clean:
-	@$(CARGO) clean
-
-doc:
-	@$(CARGO) doc
-
-install: build
-	@$(CARGO) install
-
-scraper: build-scraper
-	@$(CARGO) install --force --path tools/scraper
-
-publish:
-	@$(CARGO) publish
-
-run: build
-	@$(CARGO) run
-
-run-api: build
-	@$(CARGO) run -p web
-
-test: build
-	@$(CARGO) test
-
-update:
-	@$(CARGO) update
+install:
+	cd $(CONF_DIR) && cp *.service /etc/systemd/system
+	systemctl enable xvfb.service
+	systemctl enable webclient.service
+	systemctl enable taskrunner.service
+	systemctl enable apiserver.service
+	systemctl enable staticfiles.service

@@ -1,0 +1,12 @@
+[Unit]
+Description=Static File server for Music Manager
+After=network.target
+
+[Service]
+Environment=MUSIC_DIR=/home/music
+Environment=IMAGE_DIR=/home/images
+ExecStart=/usr/bin/docker-compose -f /home/code/MusicManager/static/docker-compose.yml up
+
+[Install]
+WantedBy=multi-user.target
+

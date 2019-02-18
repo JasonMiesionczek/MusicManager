@@ -1,0 +1,10 @@
+[Unit]
+Description=Web Client for Music Manager
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/serve -s /home/code/MusicManager/clients/web/build
+
+[Install]
+WantedBy=multi-user.target
+

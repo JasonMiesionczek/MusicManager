@@ -88,7 +88,7 @@ export class AudioPlayer extends React.Component<AudioPlayerProps, AudioPlayerSt
         const { song, artist, album, queue } = this.props;
 
         if (song != null) {
-            songUrl = `http://localhost:90/music/${song.filename}`;
+            songUrl = `http://musicmanager.hopto.org:90/music/${song.filename}`;
             songName = song.name;
         }
 

@@ -73,7 +73,7 @@ export class SongView extends React.Component<SongViewProps, { data: SongResult,
                     </div>
                     <div className="row no-gutters">
                         {this.state.data.songs.map(song => (
-                            <div className="col-xs-12 col-sm-12" key={song.id} onClick={this.props.playSongHandler.bind(this, song, this.state.data.album, this.state.data.artist)} onMouseEnter={this.onHover} onMouseLeave={this.onOut} style={{ height: 100 + "px", backgroundSize: "1024px 100px", backgroundRepeat: "no-repeat", backgroundPosition: "right", backgroundImage: `url(http://localhost:90/images/${song.filename}.png)` }}>
+                            <div className="col-xs-12 col-sm-12" key={song.id} onClick={this.props.playSongHandler.bind(this, song, this.state.data.album, this.state.data.artist)} onMouseEnter={this.onHover} onMouseLeave={this.onOut} style={{ height: 100 + "px", backgroundSize: "1024px 100px", backgroundRepeat: "no-repeat", backgroundPosition: "right", backgroundImage: `url(http://musicmanager.hopto.org:90/images/${song.filename}.png)` }}>
                                 <div className="song-card">
                                     <h5>{song.track_num}</h5>
                                     <h3>{song.name}</h3>
