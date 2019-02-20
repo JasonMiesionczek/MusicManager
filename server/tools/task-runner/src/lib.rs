@@ -220,6 +220,7 @@ impl TaskManager {
             let new_count = task.retry_count + 1;
             let mut values = HashMap::new();
             values.insert("retry_count", UpdateValue::Int(new_count));
+            values.insert("status", UpdateValue::Str(String::from("pending")));
             self.task_repo
                 .update("tasks", values, task.id, &self.db_pool);
         } else {
