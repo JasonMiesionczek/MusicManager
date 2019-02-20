@@ -243,7 +243,8 @@ impl TaskManager {
                 self.update_task(&task, TaskStatus::Complete);
             } else {
                 warn!("Task aborted. Retrying.");
-                self.update_task(&task, TaskStatus::Pending);
+                //self.update_task(&task, TaskStatus::Pending);
+                self.retry_or_fail(&task);
             }
         }
     }
@@ -264,7 +265,8 @@ impl TaskManager {
                     self.update_task(&task, TaskStatus::Complete);
                 } else {
                     warn!("Task failed. Retrying.");
-                    self.update_task(&task, TaskStatus::Pending);
+                    //self.update_task(&task, TaskStatus::Pending);
+                    self.retry_or_fail(&task);
                 }
             }
         }
@@ -284,7 +286,8 @@ impl TaskManager {
                     self.update_task(&task, TaskStatus::Complete);
                 } else {
                     warn!("Task failed. Retrying.");
-                    self.update_task(&task, TaskStatus::Pending);
+                    //self.update_task(&task, TaskStatus::Pending);
+                    self.retry_or_fail(&task);
                 }
             }
         }
@@ -306,7 +309,8 @@ impl TaskManager {
                     self.update_task(&task, TaskStatus::Complete);
                 } else {
                     warn!("Task aborted. Retrying.");
-                    self.update_task(&task, TaskStatus::Pending);
+                    //self.update_task(&task, TaskStatus::Pending);
+                    self.retry_or_fail(&task);
                 }
             }
         } else {
@@ -370,7 +374,8 @@ impl TaskManager {
                     self.update_task(&task, TaskStatus::Complete);
                 } else {
                     warn!("Task FAILED. Retrying.");
-                    self.update_task(&task, TaskStatus::Pending);
+                    //self.update_task(&task, TaskStatus::Pending);
+                    self.retry_or_fail(&task);
                 }
             }
         }
