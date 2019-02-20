@@ -93,6 +93,11 @@ pub fn get_migrations() -> Vec<String> {
                 t.add_column("song_fk", foreign_key(song_fk));
             });
         }),
+        migration(|m| {
+            m.change_table("tasks", |t| {
+                t.add_column("retry_count", integer().nullable(true));
+            });
+        }),
     ];
 
     migrations

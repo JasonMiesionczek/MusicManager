@@ -1,3 +1,4 @@
+use std::fmt::Display;
 use mysql as my;
 use std::collections::HashMap;
 
@@ -15,6 +16,20 @@ pub use playlistsong::PlaylistSongRepository;
 pub use song::SongRepository;
 pub use task::TaskRepository;
 
+pub enum UpdateValue {
+    Str(String),
+    Int(u32),
+}
+
+impl Display for UpdateValue {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match &self {
+            UpdateValue::Str(val) => write!(f, "'{}'", val),
+            UpdateValue::Int(val) => write!(f, "{}", val),
+        }
+    }
+}
+
 pub trait Repository {
     type Item: From<my::Row> + Clone;
 
@@ -28,10 +43,10 @@ pub trait Repository {
         pool: &my::Pool,
     ) -> Result<&'a mut Self::Item, String>;
 
-    fn update(&self, table: &str, values: HashMap<&str, &str>, id: u32, pool: &my::Pool) {
+    fn update(&self, table: &str, values: HashMap<&str, UpdateValue>, id: u32, pool: &my::Pool) {
         let params = values
             .iter()
-            .map(|(k, v)| format!("{} = '{}'", k, v))
+            .map(|(k, v)| format!("{} = {}", k, v))
             .collect::<Vec<String>>()
             .join(", ");
         let query = format!("UPDATE {} SET {} WHERE id = {}", table, params, id);

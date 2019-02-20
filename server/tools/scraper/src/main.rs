@@ -116,30 +116,30 @@ fn main() {
         .size(1224, 768)
         .debug(true)
         .user_data(0)
-        .invoke_handler(|webview, arg| {
+        .invoke_handler(|_webview, arg| {
             match serde_json::from_str(arg).unwrap() {
                 Cmd::Abort => {
                     println!("ABORT");
-                    webview.terminate();
+                    std::process::exit(1);
                 }
                 Cmd::Artist { data } => {
                     println!("{}", data);
-                    webview.terminate();
+                    std::process::exit(0);
                 }
                 Cmd::Image { data } => {
                     println!("{}", data);
-                    webview.terminate();
+                    std::process::exit(0);
                 }
                 Cmd::Albums { data } => {
                     if let Ok(json_str) = serde_json::to_string(&data) {
                         println!("{}", json_str);
-                        webview.terminate();
+                        std::process::exit(0);
                     }
                 }
                 Cmd::Songs { data } => {
                     if let Ok(json_str) = serde_json::to_string(&data) {
                         println!("{}", json_str);
-                        webview.terminate();
+                        std::process::exit(0);
                     }
                 }
             }
@@ -156,6 +156,10 @@ fn main() {
             .dispatch(move |webview| webview.eval(script.as_str()))
             .unwrap();
     });
-
+    thread::spawn(|| {
+        thread::sleep(Duration::from_secs(60));
+        println!("ABORT");
+        std::process::exit(1);
+    });
     web_view.run().unwrap();
 }

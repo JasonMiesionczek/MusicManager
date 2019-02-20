@@ -3,7 +3,7 @@ use mysql_common::*;
 use serde_derive::*;
 use std::fmt::Display;
 
-#[derive(Deserialize, Debug, Serialize, Clone)]
+#[derive(Deserialize, Debug, Serialize, Clone, PartialEq)]
 pub struct AlbumMeta {
     pub id: String,
     pub name: String,
@@ -12,7 +12,7 @@ pub struct AlbumMeta {
     pub year: String,
 }
 
-#[derive(Deserialize, Debug, Serialize, Clone)]
+#[derive(Deserialize, Debug, Serialize, Clone, PartialEq)]
 pub struct SongMeta {
     pub id: String,
     pub name: String,
@@ -30,6 +30,7 @@ pub enum Cmd {
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub enum TaskStatus {
     Pending,
+    Queued,
     InProgress,
     Complete,
     Failed,
@@ -39,6 +40,7 @@ impl Display for TaskStatus {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match &self {
             TaskStatus::Pending => write!(f, "pending"),
+            TaskStatus::Queued => write!(f, "queued"),
             TaskStatus::InProgress => write!(f, "in-progress"),
             TaskStatus::Complete => write!(f, "complete"),
             TaskStatus::Failed => write!(f, "failed"),
@@ -46,7 +48,7 @@ impl Display for TaskStatus {
     }
 }
 
-#[derive(Deserialize, Debug, Serialize, Clone)]
+#[derive(Deserialize, Debug, Serialize, Clone, PartialEq)]
 pub enum TaskType {
     GetArtistImage(String),
     GetAlbumData(String),
@@ -70,12 +72,13 @@ impl Display for TaskType {
     }
 }
 
-#[derive(Deserialize, Debug, Serialize, Clone)]
+#[derive(Deserialize, Debug, Serialize, Clone, PartialEq)]
 pub struct Task {
     pub id: u32,
     pub status: TaskStatus,
     pub task_type: TaskType,
     pub external_id: String,
+    pub retry_count: u32,
 }
 
 impl Task {
@@ -85,13 +88,29 @@ impl Task {
             status: TaskStatus::Pending,
             task_type: task_type,
             external_id: String::from(""),
+            retry_count: 0,
         }
     }
 }
 
+unsafe impl Send for Task {}
+unsafe impl Sync for Task {}
+
 impl Display for Task {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{}", self.task_type)
+        let data = match self.task_type {
+            TaskType::GetAlbumData(ref artist_name) => format!("{}", artist_name),
+            TaskType::GetAlbumImage(ref album_meta) => {
+                format!("{}: {}", album_meta.artist, album_meta.name)
+            }
+            TaskType::GetArtistImage(ref artist_name) => format!("{}", artist_name),
+            TaskType::GetSongData(ref album_meta) => {
+                format!("{}: {}", album_meta.artist, album_meta.name)
+            }
+            TaskType::DownloadSong(ref song_meta) => format!("{}", song_meta.name),
+            TaskType::GenerateWaveform(ref song_meta) => format!("{}", song_meta.name),
+        };
+        write!(f, "[#{}]: {} ({})", self.id, self.task_type, data)
     }
 }
 
@@ -101,6 +120,7 @@ impl From<Row> for Task {
         let status: String = item.take("status").unwrap();
         let status_enum = match status.as_str() {
             "pending" => TaskStatus::Pending,
+            "queued" => TaskStatus::Queued,
             "in-progress" => TaskStatus::InProgress,
             "complete" => TaskStatus::Complete,
             "failed" => TaskStatus::Failed,
@@ -130,12 +150,16 @@ impl From<Row> for Task {
             _ => panic!("unknown task type"),
         };
         let external_id: String = item.take("external_id").unwrap();
-
+        let retry_count: u32 = match item.take("retry_count") {
+            Some(val) => val,
+            None => 0,
+        };
         Task {
             id,
             status: status_enum,
             task_type: task_enum,
             external_id,
+            retry_count,
         }
     }
 }

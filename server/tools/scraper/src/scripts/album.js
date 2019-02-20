@@ -3,8 +3,9 @@ function getAlbums() {
   var data = [];
   bandName = document.querySelector('[role="heading"]').text.runs[0].text;
 
+  var seeAllLink = document.querySelectorAll('[title="See all"]')[0].parentElement.parentElement.parentElement.parentElement.children[0].text.runs[0].text;
   var showAllAlbumsLink = document.querySelectorAll('[title="See all"]');
-  if (showAllAlbumsLink.length == 1) {
+  if (seeAllLink !== "Albums") {
     var albums = document.querySelector("ytmusic-carousel-shelf-renderer").data
       .contents;
     var albumElements = document
@@ -36,7 +37,7 @@ function getAlbums() {
 
 function clickAlbumLink() {
   document.querySelector('[title="See all"]').click();
-  setTimeout(function() {
+  setTimeout(function () {
     var data = [];
     var albums = document.querySelector("ytmusic-section-list-renderer").data
       .contents[0].musicShelfRenderer.contents;
@@ -57,7 +58,7 @@ function clickAlbumLink() {
       }
       var year = document
         .querySelectorAll("ytmusic-responsive-list-item-renderer")
-        [i].querySelector(".secondary-flex-columns")
+      [i].querySelector(".secondary-flex-columns")
         .querySelector("yt-formatted-string").text.runs[2].text;
       data.push({
         id: id,
