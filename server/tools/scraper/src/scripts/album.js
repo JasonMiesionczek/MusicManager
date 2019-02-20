@@ -3,9 +3,15 @@ function getAlbums() {
   var data = [];
   bandName = document.querySelector('[role="heading"]').text.runs[0].text;
 
-  var seeAllLink = document.querySelectorAll('[title="See all"]')[0].parentElement.parentElement.parentElement.parentElement.children[0].text.runs[0].text;
-  var showAllAlbumsLink = document.querySelectorAll('[title="See all"]');
-  if (seeAllLink !== "Albums") {
+  var hasLinks = document.querySelectorAll('[title="See all"]').length;
+  var useSimpleAlbum = !hasLinks;
+  if (hasLinks) {
+    var seeAllLink = document.querySelectorAll('[title="See all"]')[0].parentElement.parentElement.parentElement.parentElement.children[0].text.runs[0].text;
+    useSimpleAlbum = seeAllLink !== "Albums";
+  }
+
+  //var showAllAlbumsLink = document.querySelectorAll('[title="See all"]');
+  if (useSimpleAlbum) {
     var albums = document.querySelector("ytmusic-carousel-shelf-renderer").data
       .contents;
     var albumElements = document
@@ -56,10 +62,18 @@ function clickAlbumLink() {
       if (imageUrl.startsWith("data")) {
         imageUrl = "";
       }
-      var year = document
+      var year_runs = document
         .querySelectorAll("ytmusic-responsive-list-item-renderer")
       [i].querySelector(".secondary-flex-columns")
-        .querySelector("yt-formatted-string").text.runs[2].text;
+        .querySelector("yt-formatted-string").text.runs;
+      var year = "0";
+      if (year_runs.length > 1) {
+        year = document
+          .querySelectorAll("ytmusic-responsive-list-item-renderer")
+        [i].querySelector(".secondary-flex-columns")
+          .querySelector("yt-formatted-string").text.runs[2].text;
+      }
+
       data.push({
         id: id,
         name: albumName,
