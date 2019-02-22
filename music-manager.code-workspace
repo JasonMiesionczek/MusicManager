@@ -5,6 +5,9 @@
 		},
 		{
 			"path": "clients/web"
+		},
+		{
+			"path": "clients/mobile"
 		}
 	],
 	"settings": {}

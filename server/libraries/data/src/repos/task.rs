@@ -16,11 +16,11 @@ impl Repository for TaskRepository {
     type Item = Task;
 
     fn select_query(&self) -> String {
-        String::from("SELECT id, status, task_type, external_id, task_data FROM tasks")
+        String::from("SELECT id, status, task_type, external_id, task_data, COALESCE(retry_count, 0) as retry_count FROM tasks")
     }
 
     fn insert_query(&self) -> String {
-        String::from("INSERT INTO tasks (status, task_type, external_id, task_data) VALUES (:status, :task_type, :external_id, :task_data)")
+        String::from("INSERT INTO tasks (status, task_type, external_id, task_data, retry_count) VALUES (:status, :task_type, :external_id, :task_data, 0)")
     }
 
     fn order_by(&self) -> String {
