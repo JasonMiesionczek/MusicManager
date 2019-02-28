@@ -11,14 +11,40 @@ import {
 } from 'react-native';
 
 export default class AlbumsScreen extends React.Component {
+    static navigationOptions = {
+        header: null,
+    };
     constructor(props) {
         super(props);
+        this.navigationOptions = { header: this.props.navigation.state.params.artistId };
+        this.state = {
+            albums: [],
+            artist: {}
+        }
+    }
 
+    async componentDidMount() {
+        const artistId = this.props.navigation.state.params.artistId;
+        const response = await fetch(`http://musicmanager.hopto.org:8000/api/library/albums/${artistId}`);
+        const data = await response.json();
+        this.setState({ artist: data.artist, albums: data.albums });
     }
 
     render() {
+        const { navigate } = this.props.navigation;
         return (
-            <View style={styles.contentContainer}><Text>Artist ID: {this.props.navigation.state.params.artistId}</Text></View>
+            <View style={styles.contentContainer}>
+                <Text style={styles.artistName}>
+                    {this.state.artist.name}
+                </Text>
+                <Text style={styles.albumCount}>
+                    {this.state.albums.length} Albums
+                </Text>
+                <FlatList
+                    data={this.state.albums}
+                    renderItem={({ item }) => <TouchableOpacity onPress={() => navigate('Songs', { albumId: item.id })}><ImageBackground style={{ width: 425, height: 175 }} source={{ uri: 'http://musicmanager.hopto.org:90/images/' + item.external_id + '.jpg' }} ><Text style={styles.albumName}>{item.name}</Text></ImageBackground></TouchableOpacity>}
+                    keyExtractor={(item, index) => item.id + ""} />
+            </View>
         )
     }
 }
@@ -28,7 +54,23 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
     },
+    albumCount: {
+        paddingLeft: 25,
+        color: '#ddd',
+        fontSize: 20,
+        paddingBottom: 20,
+    },
     artistName: {
+        color: '#fff',
+        fontSize: 35,
+        paddingTop: 10,
+        paddingLeft: 25,
+        height: 50,
+        textShadowColor: '#000',
+        textShadowOffset: { width: 2, height: 2 },
+        textShadowRadius: 10
+    },
+    albumName: {
         color: '#fff',
         fontSize: 24,
         paddingTop: 125,
@@ -46,6 +88,8 @@ const styles = StyleSheet.create({
     },
     contentContainer: {
         paddingTop: 30,
+        backgroundColor: '#222',
+        paddingBottom: 94
     },
     welcomeContainer: {
         alignItems: 'center',

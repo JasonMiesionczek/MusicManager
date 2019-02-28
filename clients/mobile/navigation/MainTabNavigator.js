@@ -6,35 +6,55 @@ import TabBarIcon from '../components/TabBarIcon';
 import HomeScreen from '../screens/HomeScreen';
 import LinksScreen from '../screens/LinksScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import AlbumsScreen from '../screens/AlbumsScreen';
+import SongScreen from '../screens/SongScreen';
+import PlaylistScreen from '../screens/PlaylistScreen';
+import QueueScreen from '../screens/QueueScreen';
 
-const HomeStack = createStackNavigator({
+const LibraryStack = createStackNavigator({
   Home: HomeScreen,
+  Albums: { screen: AlbumsScreen },
+  Songs: { screen: SongScreen }
 });
 
-HomeStack.navigationOptions = {
-  tabBarLabel: 'Home',
+LibraryStack.navigationOptions = {
+  tabBarLabel: 'Library',
   tabBarIcon: ({ focused }) => (
     <TabBarIcon
       focused={focused}
       name={
         Platform.OS === 'ios'
-          ? `ios-information-circle${focused ? '' : '-outline'}`
-          : 'md-information-circle'
+          ? `ios-list${focused ? '' : '-outline'}`
+          : 'md-list'
       }
     />
   ),
 };
 
-const LinksStack = createStackNavigator({
-  Links: LinksScreen,
+const PlaylistStack = createStackNavigator({
+  Playlists: PlaylistScreen
 });
 
-LinksStack.navigationOptions = {
-  tabBarLabel: 'Links',
+PlaylistStack.navigationOptions = {
+  tabBarLabel: 'Playlists',
   tabBarIcon: ({ focused }) => (
     <TabBarIcon
       focused={focused}
-      name={Platform.OS === 'ios' ? 'ios-link' : 'md-link'}
+      name={Platform.OS === 'ios' ? 'ios-play-circle' : 'md-play-circle'}
+    />
+  ),
+};
+
+const QueueStack = createStackNavigator({
+  Queue: QueueScreen,
+});
+
+QueueStack.navigationOptions = {
+  tabBarLabel: 'Queue',
+  tabBarIcon: ({ focused }) => (
+    <TabBarIcon
+      focused={focused}
+      name={Platform.OS === 'ios' ? 'ios-speedometer' : 'md-speedometer'}
     />
   ),
 };
@@ -54,7 +74,8 @@ SettingsStack.navigationOptions = {
 };
 
 export default createBottomTabNavigator({
-  HomeStack,
-  LinksStack,
+  LibraryStack,
+  PlaylistStack,
+  QueueStack,
   SettingsStack,
 });

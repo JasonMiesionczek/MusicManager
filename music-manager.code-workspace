@@ -10,5 +10,8 @@
 			"path": "clients/mobile"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"java.configuration.updateBuildConfiguration": "interactive",
+		"git.ignoreLimitWarning": true
+	}
 }

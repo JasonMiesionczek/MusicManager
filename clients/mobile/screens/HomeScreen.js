@@ -26,9 +26,13 @@ export default class HomeScreen extends React.Component {
   }
 
   async componentDidMount() {
-    const response = await fetch('http://musicmanager.hopto.org:8000/api/library/artists');
-    const data = await response.json();
-    this.setState({ artists: data.artists });
+    try {
+      const response = await fetch('http://musicmanager.hopto.org:8000/api/library/artists');
+      const data = await response.json();
+      this.setState({ artists: data.artists });
+    } catch (e) {
+      alert(e);
+    }
   }
 
   render() {
@@ -43,11 +47,7 @@ export default class HomeScreen extends React.Component {
 
           </View>
 
-          <View style={styles.helpContainer}>
-            <TouchableOpacity onPress={this._handleHelpPress} style={styles.helpLink}>
-              <Text style={styles.helpLinkText}>Help, it didn’t automatically reload!</Text>
-            </TouchableOpacity>
-          </View>
+
         </ScrollView>
 
 
@@ -92,7 +92,7 @@ export default class HomeScreen extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#222',
   },
   artistName: {
     color: '#fff',

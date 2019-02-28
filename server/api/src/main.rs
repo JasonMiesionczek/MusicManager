@@ -37,6 +37,26 @@ struct SongResult {
     songs: Vec<Song>,
 }
 
+#[derive(Serialize, Deserialize)]
+struct MediaItem {
+    id: String,
+    title: String,
+    album: String,
+    artist: String,
+    genre: String,
+    source: String,
+    image: String,
+    trackNumber: u32,
+    totalTrackCount: u32,
+    duration: u32,
+    site: String,
+}
+
+#[derive(Serialize, Deserialize)]
+struct AllResult {
+    music: Vec<MediaItem>,
+}
+
 #[get("/library/artists", format = "json", rank = 5)]
 fn artists(service: State<LibraryService>) -> Option<Json<ArtistsResult>> {
     let pool = ::data::get_pool();
@@ -87,6 +107,37 @@ fn songs(album_id: String, service: State<LibraryService>) -> Option<Json<SongRe
     } else {
         None
     }
+}
+
+#[get("/library/all", format = "json")]
+fn all(service: State<LibraryService>) -> Option<Json<AllResult>> {
+    let pool = ::data::get_pool();
+    let mut items = Vec::new();
+    for artist in service.get_artists(&pool) {
+        for album in service.get_artist_albums(artist.id.to_string().as_str(), &pool) {
+            let songs = service.get_album_songs(album.id.to_string().as_str(), &pool);
+            let total_tracks = songs.len();
+            for song in songs {
+                items.push(MediaItem {
+                    id: song.external_id,
+                    title: song.name,
+                    album: album.clone().name,
+                    artist: artist.clone().name,
+                    genre: String::from("stuff"),
+                    source: format!("http://musicmanager.hopto.org:90/music/{}", song.filename),
+                    image: format!(
+                        "http://musicmanager.hopto.org:90/images/{}.jpg",
+                        album.external_id
+                    ),
+                    trackNumber: song.track_num,
+                    totalTrackCount: total_tracks as u32,
+                    duration: 0,
+                    site: String::from(""),
+                });
+            }
+        }
+    }
+    Some(Json(AllResult { music: items }))
 }
 
 #[get("/tasks", format = "json")]
@@ -164,6 +215,7 @@ fn rckt() -> rocket::Rocket {
                 create_playlist,
                 add_song_to_playlist,
                 get_playlist_songs,
+                all,
             ],
         )
         .attach(cors_options_all())
