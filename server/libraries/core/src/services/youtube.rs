@@ -121,7 +121,7 @@ impl YoutubeService {
         {
             Err(_) => {
                 return Err(DownloadError::Unspecified(String::from(
-                    "Error executing curl",
+                    "Error downloading song",
                 )));
             }
             Ok(output) => output,
@@ -141,7 +141,7 @@ impl YoutubeService {
                 return Err(DownloadError::Forbidden);
             } else {
                 return Err(DownloadError::Unspecified(String::from(
-                    "Error executing curl",
+                    "Error downloading song",
                 )));
             }
         }

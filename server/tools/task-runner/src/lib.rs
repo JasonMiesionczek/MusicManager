@@ -5,7 +5,7 @@ use data::{
         AlbumRepository, ArtistRepository, Repository, SongRepository, TaskRepository, UpdateValue,
     },
 };
-use log::warn;
+use log::{error, info, warn};
 use std::collections::HashMap;
 use std::sync::{mpsc, Arc, Mutex};
 use std::thread;
@@ -210,6 +210,7 @@ impl TaskManager {
     fn update_task(&self, task: &Task, status: TaskStatus) {
         let mut values = HashMap::new();
         let status_string = status.to_string();
+        info!("Task {}: {}", task, status_string);
         values.insert("status", UpdateValue::Str(status_string));
         self.task_repo
             .update("tasks", values, task.id, &self.db_pool);
@@ -221,9 +222,11 @@ impl TaskManager {
             let mut values = HashMap::new();
             values.insert("retry_count", UpdateValue::Int(new_count));
             values.insert("status", UpdateValue::Str(String::from("pending")));
+            warn!("Task {}: Failed, try #{}", task, new_count);
             self.task_repo
                 .update("tasks", values, task.id, &self.db_pool);
         } else {
+            error!("Task {}: Max retry count hit. Failed.", task);
             self.update_task(&task, TaskStatus::Failed);
         }
     }
@@ -242,8 +245,6 @@ impl TaskManager {
                 }
                 self.update_task(&task, TaskStatus::Complete);
             } else {
-                warn!("Task aborted. Retrying.");
-                //self.update_task(&task, TaskStatus::Pending);
                 self.retry_or_fail(&task);
             }
         }
@@ -264,8 +265,6 @@ impl TaskManager {
                 {
                     self.update_task(&task, TaskStatus::Complete);
                 } else {
-                    warn!("Task failed. Retrying.");
-                    //self.update_task(&task, TaskStatus::Pending);
                     self.retry_or_fail(&task);
                 }
             }
@@ -285,8 +284,6 @@ impl TaskManager {
                 {
                     self.update_task(&task, TaskStatus::Complete);
                 } else {
-                    warn!("Task failed. Retrying.");
-                    //self.update_task(&task, TaskStatus::Pending);
                     self.retry_or_fail(&task);
                 }
             }
@@ -308,8 +305,6 @@ impl TaskManager {
                     }
                     self.update_task(&task, TaskStatus::Complete);
                 } else {
-                    warn!("Task aborted. Retrying.");
-                    //self.update_task(&task, TaskStatus::Pending);
                     self.retry_or_fail(&task);
                 }
             }
@@ -373,8 +368,6 @@ impl TaskManager {
                 {
                     self.update_task(&task, TaskStatus::Complete);
                 } else {
-                    warn!("Task FAILED. Retrying.");
-                    //self.update_task(&task, TaskStatus::Pending);
                     self.retry_or_fail(&task);
                 }
             }
