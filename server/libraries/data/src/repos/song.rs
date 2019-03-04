@@ -38,7 +38,7 @@ impl Repository for SongRepository {
     ) -> Result<&'a mut Self::Item, String> {
         let mut stmt = pool.prepare(self.insert_query()).unwrap();
         let exid = uuid::Uuid::new_v4().to_string();
-        let filename = format!("{}.mp3", exid);
+        let filename = format!("{}", exid);
         let result = stmt.execute(params! {
             "name" => &item.name,
             "track_num" => &item.track_num,

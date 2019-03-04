@@ -1,5 +1,7 @@
 use clap::{App, Arg, SubCommand};
-use cli::commands::{db::run_migrations, music::queue_download, music::search_command};
+use cli::commands::{
+    db::run_migrations, music::queue_download, music::search_command, music::update_music,
+};
 
 use dotenv::dotenv;
 
@@ -28,6 +30,7 @@ fn main() {
                                 .index(1)
                                 .required(true),
                         ),
+                    SubCommand::with_name("update").about("Update tags of mp3 files"),
                 ]),
             SubCommand::with_name("db")
                 .about("Commands for working with the database")
@@ -45,6 +48,7 @@ fn main() {
             ("queue", Some(queue_matches)) => {
                 queue_download(queue_matches.value_of("artist_name").unwrap())
             }
+            ("update", Some(_)) => update_music(),
             ("", None) => println!("No subcommand was used"),
             _ => println!("invalid subcommand"),
         },

@@ -109,7 +109,7 @@ impl YoutubeService {
     pub fn download_song(&self, song_id: &str, filename: &str) -> Result<bool, DownloadError> {
         let music_dir =
             dotenv::var("MUSIC_DOWNLOAD_DIR").expect("download directory not specified");
-        let output_file = format!("{}/{}", music_dir, filename);
+        let output_file = format!("{}/{}.webm", music_dir, filename);
         let output = match Command::new("youtube-dl")
             .arg("--extract-audio")
             .arg("--audio-format")
