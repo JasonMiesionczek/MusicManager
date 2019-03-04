@@ -68,26 +68,26 @@ pub fn update_music() {
                 tag.set_title(song.clone().name);
                 tag.set_track(song.clone().track_num);
                 tag.set_year(album.year as i32);
-                match File::open(format!("{}/{}.jpg", image_dir, artist.external_id)) {
-                    Ok(mut f) => {
-                        let mut artist_image_data = Vec::new();
-                        f.read_to_end(&mut artist_image_data).unwrap();
-                        tag.add_picture(Picture {
-                            mime_type: "image/jpeg".to_string(),
-                            picture_type: PictureType::Artist,
-                            description: "".to_string(),
-                            data: artist_image_data.clone(),
-                        });
+                // match File::open(format!("{}/{}.jpg", image_dir, artist.external_id)) {
+                //     Ok(mut f) => {
+                //         let mut artist_image_data = Vec::new();
+                //         f.read_to_end(&mut artist_image_data).unwrap();
+                //         tag.add_picture(Picture {
+                //             mime_type: "image/jpeg".to_string(),
+                //             picture_type: PictureType::Artist,
+                //             description: "".to_string(),
+                //             data: artist_image_data.clone(),
+                //         });
 
-                        tag.add_picture(Picture {
-                            mime_type: "image/jpeg".to_string(),
-                            picture_type: PictureType::Band,
-                            description: "".to_string(),
-                            data: artist_image_data,
-                        });
-                    }
-                    _ => {}
-                };
+                //         tag.add_picture(Picture {
+                //             mime_type: "image/jpeg".to_string(),
+                //             picture_type: PictureType::Band,
+                //             description: "".to_string(),
+                //             data: artist_image_data,
+                //         });
+                //     }
+                //     _ => {}
+                // };
 
                 match File::open(format!("{}/{}.jpg", image_dir, album.external_id)) {
                     Ok(mut f) => {

@@ -16,6 +16,7 @@ fn update_task(task: &Task, status: TaskStatus, pool: &mysql::Pool) {
     let task_repo = TaskRepository::new();
     let mut values = HashMap::new();
     let status_string = status.to_string();
+    info!("Task {}: {}", task, status_string);
     values.insert("status", UpdateValue::Str(status_string));
     task_repo.update("tasks", values, task.id, &pool);
 }
