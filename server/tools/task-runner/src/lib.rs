@@ -331,7 +331,7 @@ impl TaskManager {
                 {
                     Ok(_) => {
                         self.update_task(&task, TaskStatus::Complete);
-                        self.create_task(TaskType::GenerateWaveform(song_meta.clone()));
+                        //self.create_task(TaskType::GenerateWaveform(song_meta.clone()));
                     }
                     Err(err) => match err {
                         DownloadError::NotAvailable => {

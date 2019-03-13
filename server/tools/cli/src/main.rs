@@ -1,13 +1,14 @@
 use clap::{App, Arg, SubCommand};
 use cli::commands::{
-    db::run_migrations, music::queue_download, music::search_command, music::update_music,
+    db::run_migrations, music::export_music, music::queue_download, music::search_command,
+    music::update_music,
 };
 
 use dotenv::dotenv;
 
 fn main() {
     dotenv().ok();
-
+    simple_logger::init().unwrap();
     let matches = App::new("music-manager")
         .subcommands(vec![
             SubCommand::with_name("music") // The name we call argument with
@@ -31,6 +32,14 @@ fn main() {
                                 .required(true),
                         ),
                     SubCommand::with_name("update").about("Update tags of mp3 files"),
+                    SubCommand::with_name("export")
+                        .about("Export music to directory hierarchy")
+                        .arg(
+                            Arg::with_name("path")
+                                .help("directory to output music")
+                                .index(1)
+                                .required(true),
+                        ),
                 ]),
             SubCommand::with_name("db")
                 .about("Commands for working with the database")
@@ -47,6 +56,9 @@ fn main() {
             }
             ("queue", Some(queue_matches)) => {
                 queue_download(queue_matches.value_of("artist_name").unwrap())
+            }
+            ("export", Some(export_matches)) => {
+                export_music(export_matches.value_of("path").unwrap())
             }
             ("update", Some(_)) => update_music(),
             ("", None) => println!("No subcommand was used"),
