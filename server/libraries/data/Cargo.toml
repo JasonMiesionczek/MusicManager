@@ -8,8 +8,8 @@ edition = "2018"
 dotenv = "0.13.0"
 chrono = "0.4.6"
 barrel = { path = "../../thirdparty/barrel", features = ["mysql"]}
-mysql = "*"
-mysql_common = "0.15.0"
+mysql = "16.0.2"
+mysql_common = "0.17.1"
 uuid = { version = "0.7", features = ["serde", "v4"] }
 serde_derive = "1.0.84"
 serde = "1.0.84"

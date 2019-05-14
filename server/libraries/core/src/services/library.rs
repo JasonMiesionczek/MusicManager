@@ -76,7 +76,7 @@ impl LibraryService {
 
     pub fn get_album_songs(&self, album_id: &str, pool: &mysql::Pool) -> Vec<Song> {
         let song_repo = SongRepository::new();
-        let songs = song_repo.find_by(crate::map! {"album_id" => album_id}, &pool);
+        let songs = song_repo.find_by(crate::map! {"album_id" => album_id}, pool);
         songs
         // .into_iter()
         // .map(|a| LibrarySong::from(a))

@@ -1,47 +1,47 @@
 version: "3"
 
 services:
-  web:
-    build: ./clients/web
-    user: ${CURRENT_UID}
-    volumes:
-      - ./clients/web:/usr/src/app
-    ports:
-      - "3000:3000"
-    command: bash -c "yarn && yarn start"
-    links:
-      - api_server
+  # web:
+  #   build: ./clients/web
+  #   user: ${CURRENT_UID}
+  #   volumes:
+  #     - ./clients/web:/usr/src/app
+  #   ports:
+  #     - "3000:3000"
+  #   command: bash -c "yarn && yarn start"
+  #   links:
+  #     - api_server
 
-  api_server:
-    build: ./server
-    user: ${CURRENT_UID}
-    ports:
-      - "3001:3001"
-    volumes:
-      - ./server:/usr/src/app
-    links:
-      - db
-    command: bash -c "cargo watch -x 'run --bin api'"
+  # api_server:
+  #   build: ./server
+  #   user: ${CURRENT_UID}
+  #   ports:
+  #     - "3001:3001"
+  #   volumes:
+  #     - ./server:/usr/src/app
+  #   links:
+  #     - db
+  #   command: bash -c "cargo watch -x 'run --bin api'"
 
-  task_runner:
-    build: ./server
-    user: ${CURRENT_UID}
-    depends_on:
-      - db
-      - scraper
-    #  - xvfb
-    volumes:
-      - ./server:/usr/src/app
-    links:
-      - db
-    command: bash ./startup.sh
+  # task_runner:
+  #   build: ./server
+  #   user: ${CURRENT_UID}
+  #   depends_on:
+  #     - db
+  #     - scraper
+  #   #  - xvfb
+  #   volumes:
+  #     - ./server:/usr/src/app
+  #   links:
+  #     - db
+  #   command: bash ./startup.sh
 
-  scraper:
-    build: ./server/tools/scraper
-    user: ${CURRENT_UID}
-    volumes:
-      - ./server:/usr/src/app
-    command: bash -c "cargo build -p scraper --release"
+  # scraper:
+  #   build: ./server/tools/scraper
+  #   user: ${CURRENT_UID}
+  #   volumes:
+  #     - ./server:/usr/src/app
+  #   command: bash -c "cargo build -p scraper --release"
 
   # xvfb:
   #   build: ./server
@@ -54,6 +54,8 @@ services:
     image: mysql
     command: --default-authentication-plugin=mysql_native_password
     restart: always
+    ports:
+      - "3306:3306"
     environment:
       MYSQL_USER: music
       MYSQL_PASSWORD: bobdole

@@ -1,17 +1,43 @@
 [
     {
         "name": "web",
-        "working_dir": "/home/jason/Projects/music-manager/clients/web",
+        "working_dir": "/home/jason/Projects/MusicManager/clients/web",
         "binary": "yarn",
-        "color": "blue",
+        "color": "bright_blue",
         "args": [
             "start"
         ],
-        "env": {}
+        "env": {},
+        "group": 1
+    },
+    {
+        "name": "db",
+        "working_dir": "/home/jason/Projects/MusicManager",
+        "binary": "docker-compose",
+        "color": "red",
+        "args": [
+            "up"
+        ],
+        "env": {},
+        "group": 0
+    },
+    {
+        "name": "xvfb",
+        "working_dir": "/home/jason/Projects/MusicManager/server",
+        "binary": "Xvfb",
+        "color": "yellow",
+        "args": [
+            ":99",
+            "-screen",
+            "0",
+            "1024x768x16"
+        ],
+        "env": {},
+        "group": 0
     },
     {
         "name": "task-runner",
-        "working_dir": "/home/jason/Projects/music-manager/server",
+        "working_dir": "/home/jason/Projects/MusicManager/server",
         "binary": "cargo",
         "color": "green",
         "args": [
@@ -19,11 +45,12 @@
             "-x",
             "run --bin task-runner"
         ],
-        "env": {}
+        "env": {},
+        "group": 1
     },
     {
         "name": "api",
-        "working_dir": "/home/jason/Projects/music-manager/server",
+        "working_dir": "/home/jason/Projects/MusicManager/server",
         "binary": "cargo",
         "color": "magenta",
         "args": [
@@ -31,17 +58,19 @@
             "-x",
             "run --bin api"
         ],
-        "env": {}
+        "env": {},
+        "group": 1
     },
     {
         "name":"static",
-        "working_dir": "/home/jason/Projects/music-manager/static",
+        "working_dir": "/home/jason/Projects/MusicManager/static",
         "binary": "docker-compose",
         "color": "cyan",
         "args": ["up"],
         "env": {
-            "MUSIC_DIR": "/home/jason/MusicDownload",
-            "IMAGE_DIR": "/home/jason/ImageDownload"
-         }
+            "MUSIC_DIR": "/home/jason/Music",
+            "IMAGE_DIR": "/home/jason/Images"
+         },
+         "group": 0
     }
 ]
