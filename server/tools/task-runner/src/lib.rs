@@ -9,6 +9,12 @@ use log::{error, info, warn};
 use std::collections::HashMap;
 use std::sync::{mpsc, Arc, Mutex};
 use std::thread;
+use std::fs::File;
+use std::io::prelude::*;
+use id3::{
+    frame::{Picture, PictureType},
+    Tag, Version,
+};
 
 pub struct ThreadPool {
     workers: Vec<Worker>,
@@ -313,6 +319,63 @@ impl TaskManager {
         }
     }
 
+    fn update_song_data(&self, song: &Song, album: &Album) {
+        let music_dir = dotenv::var("MUSIC_DOWNLOAD_DIR").expect("download directory not specified");
+        let image_dir =
+            dotenv::var("IMAGE_DOWNLOAD_DIR").expect("image download directory not specified");
+        if let Some(artist) = self.artist_repo.find_by_id(album.artist_id, &self.db_pool) {
+            let mut tag = Tag::new();
+            tag.set_artist(artist.clone().name);
+            tag.set_album_artist(artist.clone().name);
+            tag.set_album(album.clone().name);
+            tag.set_title(song.clone().name);
+            tag.set_track(song.clone().track_num);
+            tag.set_year(album.year as i32);
+            match File::open(format!("{}/{}.jpg", image_dir, album.external_id)) {
+                Ok(mut f) => {
+                    let mut album_image_data = Vec::new();
+                    f.read_to_end(&mut album_image_data).unwrap();
+
+                    tag.add_picture(Picture {
+                        mime_type: "image/jpeg".to_string(),
+                        picture_type: PictureType::Other,
+                        description: "".to_string(),
+                        data: album_image_data.clone(),
+                    });
+
+                    tag.add_picture(Picture {
+                        mime_type: "image/jpeg".to_string(),
+                        picture_type: PictureType::CoverFront,
+                        description: "".to_string(),
+                        data: album_image_data.clone(),
+                    });
+                }
+                _ => {}
+            };
+            match tag.write_to_path(
+                format!("{}/{}.mp3", music_dir, song.filename),
+                Version::Id3v24,
+            ) {
+                Ok(_) => {
+                    info!(
+                        "Updated: {} - {} - {}",
+                        artist.name,
+                        album.name,
+                        song.clone().name
+                    );
+                }
+                _ => {
+                    warn!(
+                        "Could not update: {} - {} - {}, mp3 not found.",
+                        artist.name,
+                        album.name,
+                        song.clone().name
+                    );
+                }
+            }
+        }
+    }
+
     fn handle_download_song(&self, task: &Task, song_meta: &SongMeta) {
         self.update_task(&task, TaskStatus::InProgress);
         let meta = song_meta.clone();
@@ -331,6 +394,7 @@ impl TaskManager {
                 {
                     Ok(_) => {
                         self.update_task(&task, TaskStatus::Complete);
+                        self.update_song_data(&song, &album);
                         //self.create_task(TaskType::GenerateWaveform(song_meta.clone()));
                     }
                     Err(err) => match err {
