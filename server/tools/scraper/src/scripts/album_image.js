@@ -1,5 +1,5 @@
 function getAlbumImage() {
-  var albumImage = document.querySelector(".yt-img-shadow").src;
+  var albumImage = document.querySelector("#img").src;
   external.invoke(JSON.stringify({ cmd: "image", data: albumImage }));
 }
 
