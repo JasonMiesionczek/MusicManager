@@ -1,6 +1,6 @@
 function getSongData() {
   var data = [];
-  var albumImage = document.querySelector(".yt-img-shadow").src;
+  var albumImage = document.querySelector("#img").src;
   var songs = document.querySelector(
     "ytmusic-data-bound-album-release-tracks-shelf-renderer"
   ).data.shelfMold.musicShelfRenderer.contents;

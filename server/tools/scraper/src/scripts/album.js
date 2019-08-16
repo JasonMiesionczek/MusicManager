@@ -19,8 +19,7 @@ function getAlbums() {
       .querySelectorAll("img");
     for (var i = 0; i < albums.length; i++) {
       var id =
-        albums[i].musicTwoRowItemRenderer.doubleTapNavigationEndpoint
-          .watchPlaylistEndpoint.playlistId;
+        albums[i].musicTwoRowItemRenderer.navigationEndpoint.browseEndpoint.browseId;
       var albumName = albums[i].musicTwoRowItemRenderer.title.runs[0].text;
       var year = albums[i].musicTwoRowItemRenderer.subtitle.runs[2].text;
       var image = albumElements[i].src;

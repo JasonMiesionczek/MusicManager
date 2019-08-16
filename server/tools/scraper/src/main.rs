@@ -159,7 +159,9 @@ fn main() {
     thread::spawn(|| {
         thread::sleep(Duration::from_secs(60));
         println!("ABORT");
-        std::process::exit(1);
+//        std::process::exit(1);
     });
-    web_view.run().unwrap();
+    if let Err(_e) = web_view.run() {
+        println!("ABORT");
+    }
 }
