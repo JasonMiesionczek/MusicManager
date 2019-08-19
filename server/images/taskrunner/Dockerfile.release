@@ -1,0 +1,22 @@
+
+FROM ubuntu:19.04
+
+RUN apt-get update
+RUN apt-get install -y xvfb wait-for-it webkit2gtk-4.0 ffmpeg python wget mysql-client curl
+RUN mkdir -p /data/music
+RUN mkdir -p /data/images
+RUN mkdir /app
+RUN wget -O - https://yt-dl.org/downloads/latest/youtube-dl | tee /usr/bin/youtube-dl >/dev/null
+RUN chmod a+x /usr/bin/youtube-dl
+
+ENV DATABASE_URL=mysql://root:bobdole@localhost/music
+ENV MUSIC_DOWNLOAD_DIR=/data/music
+ENV IMAGE_DOWNLOAD_DIR=/data/images
+ENV SCRAPER_PATH=/app/scraper
+
+COPY ./target/release/scraper /app/scraper
+COPY ./target/release/task-runner /app/task-runner
+COPY ./target/release/cli /app/cli
+COPY startup.sh /app/startup.sh
+
+CMD ["/usr/bin/wait-for-it db:3306 -- /app/startup.sh"]

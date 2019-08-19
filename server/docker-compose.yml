@@ -1,0 +1,21 @@
+version: '3'
+services:
+    task:
+        image: musicmanager/taskrunner:latest-release
+        environment:
+            DATABASE_URL: "mysql://root:bobdole@db/music"
+        depends_on:
+            - db
+        command: ["/usr/bin/wait-for-it", "db:3306", "--", "/app/startup.sh"]
+    db:
+        image: mysql
+        command: --default-authentication-plugin=mysql_native_password
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: "bobdole"
+            MYSQL_DATABASE: "music"
+    adminer:
+        image: adminer
+        restart: always
+        ports:
+            - 8080:8080
