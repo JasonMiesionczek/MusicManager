@@ -14,8 +14,12 @@ services:
         environment:
             MYSQL_ROOT_PASSWORD: "bobdole"
             MYSQL_DATABASE: "music"
+        volumes:
+            - my-db:/var/lib/mysql
     adminer:
         image: adminer
         restart: always
         ports:
             - 8080:8080
+volumes:
+    my-db:

@@ -1,5 +1,5 @@
 [package]
-name = "core"
+name = "musiccore"
 version = "0.1.0"
 authors = ["jason"]
 edition = "2018"

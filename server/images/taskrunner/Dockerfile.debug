@@ -1,7 +1,7 @@
 FROM ubuntu:19.04
 
 RUN apt-get update
-RUN apt-get install -y xvfb wait-for-it webkit2gtk-4.0 ffmpeg python wget mysql-client curl
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y xvfb wait-for-it webkit2gtk-4.0 ffmpeg python wget mysql-client curl
 RUN mkdir -p /data/music
 RUN mkdir -p /data/images
 RUN mkdir /app

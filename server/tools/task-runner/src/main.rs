@@ -9,23 +9,23 @@ use task_runner::ThreadPool;
 
 fn get_pending_tasks(pool: &mysql::Pool) -> Vec<Task> {
     let task_repo = TaskRepository::new();
-    task_repo.find_by(core::map! {"status" => "pending"}, &pool)
+    task_repo.find_by(musiccore::map! {"status" => "pending"}, &pool)
 }
 
 fn get_in_progress_tasks_count(pool: &mysql::Pool) -> usize {
     let task_repo = TaskRepository::new();
-    task_repo.find_by(core::map! {"status" => "in-progress"}, &pool).len()
+    task_repo.find_by(musiccore::map! {"status" => "in-progress"}, &pool).len()
 }
 
 fn get_complete_tasks_count(pool: &mysql::Pool) -> usize {
     let task_repo = TaskRepository::new();
-    task_repo.find_by(core::map! {"status" => "complete"}, &pool).len()
+    task_repo.find_by(musiccore::map! {"status" => "complete"}, &pool).len()
 }
 
 fn get_queued_count(pool: &mysql::Pool) -> usize {
     let task_repo = TaskRepository::new();
     task_repo
-        .find_by(core::map! { "status" => "queued"}, &pool)
+        .find_by(musiccore::map! { "status" => "queued"}, &pool)
         .len()
 }
 

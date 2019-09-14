@@ -4,8 +4,8 @@ use ::data::{
     models::*,
     repos::{AlbumRepository, ArtistRepository, PlaylistRepository, Repository, TaskRepository},
 };
-use core::services::LibraryService;
 use dotenv;
+use musiccore::services::LibraryService;
 use rocket::State;
 use rocket::*;
 use rocket_contrib::json::Json;
@@ -46,8 +46,8 @@ struct MediaItem {
     genre: String,
     source: String,
     image: String,
-    trackNumber: u32,
-    totalTrackCount: u32,
+    track_number: u32,
+    total_track_count: u32,
     duration: u32,
     site: String,
 }
@@ -129,8 +129,8 @@ fn all(service: State<LibraryService>) -> Option<Json<AllResult>> {
                         "http://musicmanager.hopto.org:90/images/{}.jpg",
                         album.external_id
                     ),
-                    trackNumber: song.track_num,
-                    totalTrackCount: total_tracks as u32,
+                    track_number: song.track_num,
+                    total_track_count: total_tracks as u32,
                     duration: 0,
                     site: String::from(""),
                 });

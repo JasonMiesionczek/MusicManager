@@ -6,7 +6,7 @@ edition = "2018"
 
 [dependencies]
 data = { path = "../../libraries/data"}
-core = { path = "../../libraries/core" }
+musiccore = { path = "../../libraries/musiccore" }
 chrono = "0.4.6"
 pbr = "1.0.1"
 openssl = "0.10.16"

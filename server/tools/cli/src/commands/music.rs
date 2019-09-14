@@ -1,4 +1,4 @@
-use core::services::{youtube::YoutubeService, LibraryService};
+use musiccore::services::{youtube::YoutubeService, LibraryService};
 use data::{
     models::*,
     repos::{Repository, TaskRepository},

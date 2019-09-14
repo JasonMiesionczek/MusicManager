@@ -1,20 +1,20 @@
-use core::{map, services::youtube::DownloadError, services::YoutubeService};
 use data::{
     models::*,
     repos::{
         AlbumRepository, ArtistRepository, Repository, SongRepository, TaskRepository, UpdateValue,
     },
 };
-use log::{error, info, warn};
-use std::collections::HashMap;
-use std::sync::{mpsc, Arc, Mutex};
-use std::thread;
-use std::fs::File;
-use std::io::prelude::*;
 use id3::{
     frame::{Picture, PictureType},
     Tag, Version,
 };
+use log::{error, info, warn};
+use musiccore::{map, services::youtube::DownloadError, services::YoutubeService};
+use std::collections::HashMap;
+use std::fs::File;
+use std::io::prelude::*;
+use std::sync::{mpsc, Arc, Mutex};
+use std::thread;
 
 pub struct ThreadPool {
     workers: Vec<Worker>,
@@ -37,7 +37,7 @@ impl<F: FnOnce()> FnBox for F {
     }
 }
 
-type Job = Box<FnBox + Send + 'static>;
+type Job = Box<dyn FnBox + Send + 'static>;
 
 impl ThreadPool {
     pub fn new(size: usize) -> ThreadPool {
@@ -320,7 +320,8 @@ impl TaskManager {
     }
 
     fn update_song_data(&self, song: &Song, album: &Album) {
-        let music_dir = dotenv::var("MUSIC_DOWNLOAD_DIR").expect("download directory not specified");
+        let music_dir =
+            dotenv::var("MUSIC_DOWNLOAD_DIR").expect("download directory not specified");
         let image_dir =
             dotenv::var("IMAGE_DOWNLOAD_DIR").expect("image download directory not specified");
         if let Some(artist) = self.artist_repo.find_by_id(album.artist_id, &self.db_pool) {
@@ -395,7 +396,7 @@ impl TaskManager {
                     Ok(_) => {
                         self.update_task(&task, TaskStatus::Complete);
                         self.update_song_data(&song, &album);
-                        //self.create_task(TaskType::GenerateWaveform(song_meta.clone()));
+                        self.create_task(TaskType::GenerateWaveform(song_meta.clone()));
                     }
                     Err(err) => match err {
                         DownloadError::NotAvailable => {
